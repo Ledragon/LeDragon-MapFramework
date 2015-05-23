@@ -1,0 +1,19 @@
+{
+  "name": "LeDragon-MapFramework",
+  "version": "0.0.0",
+  "authors": [
+    "Hugues Stefanski <hugues.stefanski@gmail.com>"
+  ],
+  "description": "A framework to create maps in JavaScript",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "d3": "~3.5.5"
+  }
+}
