@@ -14,6 +14,10 @@
     "tests"
   ],
   "dependencies": {
-    "d3": "~3.5.5"
+    "d3": "~3.5.5",
+    "topojson": "~1.6.19"
+  },
+  "devDependencies": {
+    "bootstrap": "~3.3.4"
   }
 }

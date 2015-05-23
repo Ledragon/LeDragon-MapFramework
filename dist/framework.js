@@ -1,10 +1,65 @@
-/// <reference path="../../public/scripts/topojson.d.ts" />
 var LeDragon;
 (function (LeDragon) {
     var Framework;
     (function (Framework) {
         var Map;
         (function (Map) {
+            var Models;
+            (function (Models) {
+                var position = (function () {
+                    function position(longitude, latitude) {
+                        this.longitude = longitude;
+                        this.latitude = latitude;
+                    }
+                    return position;
+                })();
+                Models.position = position;
+            })(Models = Map.Models || (Map.Models = {}));
+        })(Map = Framework.Map || (Framework.Map = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Utilities;
+        (function (Utilities) {
+            var logger = (function () {
+                function logger(console) {
+                    this.console = console;
+                }
+                logger.prototype.debugFormat = function (message) {
+                    this.console.debug(message);
+                };
+                logger.prototype.infoFormat = function (message) {
+                    this.console.info(message);
+                };
+                logger.prototype.warningFormat = function (message) {
+                    this.console.warn(message);
+                };
+                logger.prototype.errorFormat = function (message) {
+                    this.console.error(message);
+                };
+                logger.prototype.fatalFormat = function (message) {
+                    this.console.error(message);
+                };
+                return logger;
+            })();
+            Utilities.logger = logger;
+        })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
+/// <reference path="../topojson.d.ts" />
+/// <reference path="../../typings/d3/d3.d.ts" />
+/// <reference path="../models/position.ts" />
+/// <reference path="../utilities/logger.ts" />
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Map;
+        (function (Map) {
+            var position = Map.Models.position;
             var map = (function () {
                 function map(container, logger) {
                     var _this = this;
@@ -21,9 +76,9 @@ var LeDragon;
                         })
                             .append('g')
                             .classed('map', true);
-                        d3.select(window).on('resize', function () {
-                            console.log(c.node().clientWidth + '*' + c.node().clientHeight);
-                        });
+                        //                d3.select(window).on('resize', () => {
+                        //                    console.log(c.node().clientWidth + '*' + c.node().clientHeight);
+                        //                });
                         _this._countriesGroup = _this._group.append('g')
                             .classed('countries', true);
                         _this._positionsGroup = _this._group.append('g')
@@ -111,44 +166,7 @@ var LeDragon;
                 return map;
             })();
             Map.map = map;
-            var position = (function () {
-                function position(longitude, latitude) {
-                    this.longitude = longitude;
-                    this.latitude = latitude;
-                }
-                return position;
-            })();
         })(Map = Framework.Map || (Framework.Map = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
-var LeDragon;
-(function (LeDragon) {
-    var Framework;
-    (function (Framework) {
-        var Utilities;
-        (function (Utilities) {
-            var logger = (function () {
-                function logger(console) {
-                    this.console = console;
-                }
-                logger.prototype.debugFormat = function (message) {
-                    this.console.debug(message);
-                };
-                logger.prototype.infoFormat = function (message) {
-                    this.console.info(message);
-                };
-                logger.prototype.warningFormat = function (message) {
-                    this.console.warn(message);
-                };
-                logger.prototype.errorFormat = function (message) {
-                    this.console.error(message);
-                };
-                logger.prototype.fatalFormat = function (message) {
-                    this.console.error(message);
-                };
-                return logger;
-            })();
-            Utilities.logger = logger;
-        })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
-    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
-})(LeDragon || (LeDragon = {}));
+//# sourceMappingURL=framework.js.map

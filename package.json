@@ -10,5 +10,17 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Hugues Stefanski <hugues.stefanski@gmail.com>",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^2.3.0",
+    "express": "^4.12.4",
+    "gulp": "^3.8.11",
+    "gulp-inject": "^1.2.0",
+    "gulp-load-plugins": "^0.10.0",
+    "gulp-tsc": "^0.9.5",
+    "karma": "^0.12.32",
+    "karma-mocha": "^0.1.10",
+    "mocha": "^2.2.5",
+    "typescript": "^1.5.0-beta"
+  }
 }

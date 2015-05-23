@@ -1,5 +1,9 @@
-﻿/// <reference path="../../public/scripts/topojson.d.ts" />
+﻿/// <reference path="../topojson.d.ts" />
+/// <reference path="../../typings/d3/d3.d.ts" />
+/// <reference path="../models/position.ts" />
+/// <reference path="../utilities/logger.ts" />
 module LeDragon.Framework.Map {
+    import position = Models.position;
     export interface IworldMap {
         drawCountries: (countries: TopoJSON.TopoJSONObject) => void;
         addPosition: (longitude: number, latitude: number, color?: string) => void;
@@ -29,9 +33,9 @@ module LeDragon.Framework.Map {
                     })
                     .append('g')
                     .classed('map', true);
-                d3.select(window).on('resize', () => {
-                    console.log(c.node().clientWidth + '*' + c.node().clientHeight);
-                });
+//                d3.select(window).on('resize', () => {
+//                    console.log(c.node().clientWidth + '*' + c.node().clientHeight);
+//                });
                 this._countriesGroup = this._group.append('g')
                     .classed('countries', true);
                 this._positionsGroup = this._group.append('g')
@@ -121,16 +125,5 @@ module LeDragon.Framework.Map {
                 this.logger.errorFormat(e.stack);
             }
         }
-    }
-
-    class position {
-        constructor(longitude: number, latitude: number) {
-            this.longitude = longitude;
-            this.latitude = latitude;
-        }
-
-        longitude: number;
-        latitude: number;
-        color: string;
     }
 }
