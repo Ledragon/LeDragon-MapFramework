@@ -20,9 +20,9 @@ module LeDragon.Framework.Map {
         private _geoCountries: any;
         private _positions: Array<position>;
 
-        constructor(container: any, private logger: Utilities.Ilogger) {
+        constructor(container: any, private logger: Utilities.Ilogger, private d3:D3.Base) {
             this.handle(() => {
-                var c = d3.select(container);
+                var c = this.d3.select(container);
                 var width = c.node().clientWidth;
                 var height = c.node().clientHeight;
                 this._group = c
@@ -40,11 +40,11 @@ module LeDragon.Framework.Map {
                     .classed('countries', true);
                 this._positionsGroup = this._group.append('g')
                     .classed('positions', true);
-                this._projection = d3.geo.mercator()
+                this._projection = this.d3.geo.mercator()
                     .center([0, 0])
                     .translate([width / 2, height / 2])
                     .scale(width / 8);
-                this._pathGenerator = d3.geo.path().projection(this._projection);
+                this._pathGenerator = this.d3.geo.path().projection(this._projection);
 
                 this._positions = [];
             }, 'Initialization failed');

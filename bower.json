@@ -15,9 +15,11 @@
   ],
   "dependencies": {
     "d3": "~3.5.5",
-    "topojson": "~1.6.19"
+    "topojson": "~1.6.19",
+    "lodash": "~3.9.0"
   },
   "devDependencies": {
-    "bootstrap": "~3.3.4"
+    "bootstrap": "~3.3.4",
+    "q": "1.0.1"
   }
 }
