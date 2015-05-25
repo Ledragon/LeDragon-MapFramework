@@ -49,8 +49,10 @@ var LeDragon;
         })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
-/// <reference path="../topojson.d.ts" />
 /// <reference path="../../typings/d3/d3.d.ts" />
+/// <reference path="../../typings/lodash/lodash.d.ts" />
+/// <reference path="../../typings/geojson/geojson.d.ts" />
+/// <reference path="../topojson.d.ts" />
 /// <reference path="../models/position.ts" />
 /// <reference path="../utilities/logger.ts" />
 var LeDragon;
@@ -82,6 +84,8 @@ var LeDragon;
                         //                });
                         _this._countriesGroup = _this._group.append('g')
                             .classed('countries', true);
+                        _this._statesGroup = _this._group.append('g')
+                            .classed('states', true);
                         _this._positionsGroup = _this._group.append('g')
                             .classed('positions', true);
                         _this._projection = _this.d3.geo.mercator()
@@ -110,6 +114,18 @@ var LeDragon;
                             .classed('normal', true);
                         _this.logger.debugFormat('Map drawn.');
                     }, 'Drawing of map failed.');
+                };
+                map.prototype.drawStates = function (states, color) {
+                    var _this = this;
+                    this.logger.debugFormat(states);
+                    var d = this._statesGroup
+                        .selectAll('path')
+                        .data(states);
+                    d.enter()
+                        .append('path');
+                    d.attr('d', function (d, i) { return _this._pathGenerator(d); });
+                    d.attr('fill', color);
+                    d.exit().remove();
                 };
                 map.prototype.addPosition = function (longitude, latitude, color) {
                     var _this = this;
@@ -154,6 +170,14 @@ var LeDragon;
                         });
                     }, 'Centering on position failed.');
                 };
+                map.prototype.zoomOnCountry = function (countryName) {
+                    var country = _.find(this._geoCountries.features, function (c) { return c.properties.name.toLowerCase() === countryName.toLowerCase(); });
+                    if (!country) {
+                        this.logger.errorFormat("No country with name " + 0 + " found.");
+                    }
+                    else {
+                    }
+                };
                 map.prototype.handle = function (method, message) {
                     try {
                         method();
@@ -167,100 +191,6 @@ var LeDragon;
                 return map;
             })();
             Map.map = map;
-        })(Map = Framework.Map || (Framework.Map = {}));
-    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
-})(LeDragon || (LeDragon = {}));
-/// <reference path="../../typings/d3/d3.d.ts"/>
-/// <reference path="../../typings/q/Q.d.ts"/>
-/// <reference path="../utilities/logger.ts"/>
-var LeDragon;
-(function (LeDragon) {
-    var Framework;
-    (function (Framework) {
-        var Map;
-        (function (Map) {
-            var Services;
-            (function (Services) {
-                var readerService = (function () {
-                    function readerService(logger, d3) {
-                        this.logger = logger;
-                        this.d3 = d3;
-                    }
-                    readerService.prototype.read = function (fileName) {
-                        var _this = this;
-                        //TODO abstarct Q
-                        this.logger.infoFormat("Reading file " + fileName + ".");
-                        var defered = Q.defer();
-                        this.d3.json(fileName, function (error, data) {
-                            if (error) {
-                                _this.logger.errorFormat(error);
-                                defered.reject(error);
-                            }
-                            else {
-                                _this.logger.infoFormat("File " + fileName + " successfully read.");
-                                defered.resolve(data);
-                            }
-                        });
-                        return defered.promise;
-                    };
-                    return readerService;
-                })();
-                Services.readerService = readerService;
-            })(Services = Map.Services || (Map.Services = {}));
-        })(Map = Framework.Map || (Framework.Map = {}));
-    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
-})(LeDragon || (LeDragon = {}));
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-/// <reference path="../../typings/d3/d3.d.ts"/>
-/// <reference path="../../typings/q/Q.d.ts"/>
-/// <reference path="../../typings/lodash/lodash.d.ts"/>
-/// <reference path="../topojson.d.ts"/>
-/// <reference path="./readerService.ts"/>
-/// <reference path="../models/country.d.ts"/>
-var LeDragon;
-(function (LeDragon) {
-    var Framework;
-    (function (Framework) {
-        var Map;
-        (function (Map) {
-            var Services;
-            (function (Services) {
-                var countriesReaderService = (function (_super) {
-                    __extends(countriesReaderService, _super);
-                    function countriesReaderService() {
-                        _super.apply(this, arguments);
-                        this._110m = './src/data/countries-110m.topo.json';
-                    }
-                    countriesReaderService.prototype.get110m = function () {
-                        return _super.prototype.read.call(this, this._110m);
-                    };
-                    countriesReaderService.prototype.get50m = function () {
-                        var defered = Q.defer();
-                        return defered.promise;
-                    };
-                    countriesReaderService.prototype.get10m = function () {
-                        var defered = Q.defer();
-                        return defered.promise;
-                    };
-                    countriesReaderService.prototype.getEurope110m = function () {
-                        var defered = Q.defer();
-                        _super.prototype.read.call(this, this._110m).then(function (countries) {
-                            //				var objects: interfaces.country = countries.objects;
-                            console.log(countries);
-                            var europe;
-                            defered.resolve(europe);
-                        });
-                        return defered.promise;
-                    };
-                    return countriesReaderService;
-                })(Services.readerService);
-                Services.countriesReaderService = countriesReaderService;
-            })(Services = Map.Services || (Map.Services = {}));
         })(Map = Framework.Map || (Framework.Map = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));

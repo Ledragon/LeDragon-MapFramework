@@ -1,5 +1,7 @@
-﻿/// <reference path="../topojson.d.ts" />
-/// <reference path="../../typings/d3/d3.d.ts" />
+﻿/// <reference path="../../typings/d3/d3.d.ts" />
+/// <reference path="../../typings/lodash/lodash.d.ts" />
+/// <reference path="../../typings/geojson/geojson.d.ts" />
+/// <reference path="../topojson.d.ts" />
 /// <reference path="../models/position.ts" />
 /// <reference path="../utilities/logger.ts" />
 module LeDragon.Framework.Map {
@@ -7,20 +9,23 @@ module LeDragon.Framework.Map {
     export interface IworldMap {
         drawCountries: (countries: TopoJSON.TopoJSONObject) => void;
         addPosition: (longitude: number, latitude: number, color?: string) => void;
+        zoomOnCountry: (countryName: string) => void;
+        drawStates: (states: any, color?: string) => void;
     }
 
     export class map implements IworldMap {
         private _group: D3.Selection;
         private _countriesGroup: D3.Selection;
         private _positionsGroup: D3.Selection;
+        private _statesGroup: D3.Selection;
 
         private _projection: D3.Geo.Projection;
         private _pathGenerator: D3.Geo.Path;
         private _countries: TopoJSON.TopoJSONObject;
-        private _geoCountries: any;
+        private _geoCountries: GeoJSON.FeatureCollection;
         private _positions: Array<position>;
 
-        constructor(container: any, private logger: Utilities.Ilogger, private d3:D3.Base) {
+        constructor(container: any, private logger: Utilities.Ilogger, private d3: D3.Base) {
             this.handle(() => {
                 var c = this.d3.select(container);
                 var width = c.node().clientWidth;
@@ -28,16 +33,18 @@ module LeDragon.Framework.Map {
                 this._group = c
                     .append('svg')
                     .attr({
-                        'width': width,
-                        'height': height
-                    })
+                    'width': width,
+                    'height': height
+                })
                     .append('g')
                     .classed('map', true);
-//                d3.select(window).on('resize', () => {
-//                    console.log(c.node().clientWidth + '*' + c.node().clientHeight);
-//                });
+                //                d3.select(window).on('resize', () => {
+                //                    console.log(c.node().clientWidth + '*' + c.node().clientHeight);
+                //                });
                 this._countriesGroup = this._group.append('g')
                     .classed('countries', true);
+                this._statesGroup = this._group.append('g')
+                    .classed('states', true);
                 this._positionsGroup = this._group.append('g')
                     .classed('positions', true);
                 this._projection = this.d3.geo.mercator()
@@ -70,7 +77,19 @@ module LeDragon.Framework.Map {
 
                 },
                 'Drawing of map failed.'
-            );
+                );
+        }
+
+        drawStates(states: any, color?: string) {
+            this.logger.debugFormat(states);
+            var d = this._statesGroup
+                .selectAll('path')
+                .data(states);
+            d.enter()
+                .append('path');
+            d.attr('d', (d: any, i: any) => this._pathGenerator(d));
+            d.attr('fill', color);
+            d.exit().remove();
         }
 
         addPosition(longitude: number, latitude: number, color?: string): void {
@@ -82,10 +101,10 @@ module LeDragon.Framework.Map {
                 var projected = this._projection([longitude, latitude]);
                 var circle = this._positionsGroup.append('circle')
                     .attr({
-                        'r': 2,
-                        'cx': projected[0],
-                        'cy': projected[1]
-                    });
+                    'r': 2,
+                    'cx': projected[0],
+                    'cy': projected[1]
+                });
                 if (color) {
                     circle.attr('fill', color);
                 }
@@ -101,19 +120,29 @@ module LeDragon.Framework.Map {
                     .data(this._geoCountries.features)
                     .transition()
                     .attr('d', (d: any) => {
-                        var result = this._pathGenerator(d);
-                        return result;
-                    });
+                    var result = this._pathGenerator(d);
+                    return result;
+                });
                 this._positionsGroup
                     .selectAll('circle')
                     .data(this._positions)
                     .transition()
                     .attr({
-                        'cx': (d: any, i: any) => this._projection([d.longitude, d.latitude])[0],
-                        'cy': (d: any, i: any) => this._projection([d.longitude, d.latitude])[1],
-                        'r': '2'
-                    });
+                    'cx': (d: any, i: any) => this._projection([d.longitude, d.latitude])[0],
+                    'cy': (d: any, i: any) => this._projection([d.longitude, d.latitude])[1],
+                    'r': '2'
+                });
             }, 'Centering on position failed.');
+        }
+
+        zoomOnCountry(countryName: string): void {
+            var country = _.find(this._geoCountries.features, c=> c.properties.name.toLowerCase() === countryName.toLowerCase());
+            if (!country) {
+                this.logger.errorFormat(`No country with name ${0} found.`);
+            }
+            else {
+
+            }
         }
 
         private handle(method: any, message: string) {

@@ -13,6 +13,9 @@
     },
     "lodash/lodash.d.ts": {
       "commit": "aadd63ecae3feb76ea2d4be80511e266b5c2c4a7"
+    },
+    "geojson/geojson.d.ts": {
+      "commit": "c2b70ba731a485968fa3e0561a32652f59787015"
     }
   }
 }
