@@ -37,7 +37,7 @@ declare module LeDragon.Framework.Map {
     }
     class map implements IworldMap {
         private logger;
-        private d3;
+        private _d3;
         private _group;
         private _countriesGroup;
         private _positionsGroup;
@@ -47,12 +47,16 @@ declare module LeDragon.Framework.Map {
         private _countries;
         private _geoCountries;
         private _positions;
-        constructor(container: any, logger: Utilities.Ilogger, d3: D3.Base);
+        private width;
+        private height;
+        constructor(container: any, logger: Utilities.Ilogger, _d3: D3.Base);
+        private init(container);
         drawCountries(countries: TopoJSON.TopoJSONObject): void;
         drawStates(states: any, color?: string): void;
         addPosition(longitude: number, latitude: number, color?: string): void;
         centerOnPosition(longitude: number, latitude: number): void;
         zoomOnCountry(countryName: string): void;
+        private getCentering(d, pathGenerator);
         private handle(method, message);
     }
 }

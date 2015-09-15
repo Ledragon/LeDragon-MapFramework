@@ -12,11 +12,17 @@
                     <h1>Map</h1>
                 </div>
                 <div id="test" style="width:800px;height:600px"></div>
+                <div class="btn-group">
+                    <button id="center" class="btn btn-sm btn-default" onclick="center()">center</button>
+                    <button id="zoom" class="btn btn-sm btn-default" onclick="zoomOnBelgium()">Zoom on belgium</button>
+                </div>
             </div>
             <script src="/bower_components/d3/d3.min.js"></script>
             <script src="/bower_components/topojson/topojson.js"></script>
             <script src="/bower_components/q/q.js"></script>
+            <script src="/bower_components/lodash/lodash.js"></script>
             <script src="/dist/framework.js"></script>
+            <script src="/dist/services.js"></script>
             <script src="/test/app.js"></script>
         </body>
 

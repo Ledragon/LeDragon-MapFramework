@@ -25,17 +25,26 @@ module LeDragon.Framework.Map {
         private _geoCountries: GeoJSON.FeatureCollection;
         private _positions: Array<position>;
 
-        constructor(container: any, private logger: Utilities.Ilogger, private d3: D3.Base) {
+        private width: number;
+        private height: number;
+
+        constructor(container: any, private logger: Utilities.Ilogger, private _d3: D3.Base) {
+            this.init(container)
+        }
+        
+        private init(container) {
             this.handle(() => {
-                var c = this.d3.select(container);
+                var c = this._d3.select(container);
                 var width = c.node().clientWidth;
                 var height = c.node().clientHeight;
+                this.width = width;
+                this.height = height;
                 this._group = c
                     .append('svg')
                     .attr({
-                    'width': width,
-                    'height': height
-                })
+                        'width': width,
+                        'height': height
+                    })
                     .append('g')
                     .classed('map', true);
                 //                d3.select(window).on('resize', () => {
@@ -47,11 +56,11 @@ module LeDragon.Framework.Map {
                     .classed('states', true);
                 this._positionsGroup = this._group.append('g')
                     .classed('positions', true);
-                this._projection = this.d3.geo.mercator()
+                this._projection = this._d3.geo.mercator()
                     .center([0, 0])
                     .translate([width / 2, height / 2])
                     .scale(width / 8);
-                this._pathGenerator = this.d3.geo.path().projection(this._projection);
+                this._pathGenerator = this._d3.geo.path().projection(this._projection);
 
                 this._positions = [];
             }, 'Initialization failed');
@@ -82,14 +91,16 @@ module LeDragon.Framework.Map {
 
         drawStates(states: any, color?: string) {
             this.logger.debugFormat(states);
-            var d = this._statesGroup
+            var selection = this._statesGroup
                 .selectAll('path')
                 .data(states);
-            d.enter()
+            selection.enter()
                 .append('path');
-            d.attr('d', (d: any, i: any) => this._pathGenerator(d));
-            d.attr('fill', color);
-            d.exit().remove();
+            selection.attr('d', (d: any, i: any) => this._pathGenerator(d));
+            if (color) {
+                selection.attr('fill', color);
+            }
+            selection.exit().remove();
         }
 
         addPosition(longitude: number, latitude: number, color?: string): void {
@@ -101,10 +112,10 @@ module LeDragon.Framework.Map {
                 var projected = this._projection([longitude, latitude]);
                 var circle = this._positionsGroup.append('circle')
                     .attr({
-                    'r': 2,
-                    'cx': projected[0],
-                    'cy': projected[1]
-                });
+                        'r': 2,
+                        'cx': projected[0],
+                        'cy': projected[1]
+                    });
                 if (color) {
                     circle.attr('fill', color);
                 }
@@ -120,29 +131,44 @@ module LeDragon.Framework.Map {
                     .data(this._geoCountries.features)
                     .transition()
                     .attr('d', (d: any) => {
-                    var result = this._pathGenerator(d);
-                    return result;
-                });
+                        var result = this._pathGenerator(d);
+                        return result;
+                    });
                 this._positionsGroup
                     .selectAll('circle')
                     .data(this._positions)
                     .transition()
                     .attr({
-                    'cx': (d: any, i: any) => this._projection([d.longitude, d.latitude])[0],
-                    'cy': (d: any, i: any) => this._projection([d.longitude, d.latitude])[1],
-                    'r': '2'
-                });
+                        'cx': (d: any, i: any) => this._projection([d.longitude, d.latitude])[0],
+                        'cy': (d: any, i: any) => this._projection([d.longitude, d.latitude])[1],
+                        'r': '2'
+                    });
             }, 'Centering on position failed.');
         }
 
         zoomOnCountry(countryName: string): void {
-            var country = _.find(this._geoCountries.features, c=> c.properties.name.toLowerCase() === countryName.toLowerCase());
+            var country = _.find(this._geoCountries.features,
+                c=> c.properties.name.toLowerCase() === countryName.toLowerCase());
             if (!country) {
                 this.logger.errorFormat(`No country with name ${0} found.`);
             }
             else {
-
+                var c = this.getCentering(country, this._pathGenerator);
             }
+        }
+
+        private getCentering(d, pathGenerator: D3.Geo.Path) {
+            var bounds = pathGenerator.bounds(d);
+            var dx = bounds[1][0] - bounds[0][0];
+            var dy = bounds[1][1] - bounds[0][1];
+            var x = (bounds[0][0] + bounds[1][0]) / 2;
+            var y = (bounds[0][1] + bounds[1][1]) / 2;
+            var scale = .9 / Math.max(dx / this.width, dy / this.height);
+            var translate = [this.width / 2 - scale * x, this.height / 2 - scale * y];
+            return {
+                scale: scale,
+                translate: translate
+            };
         }
 
         private handle(method: any, message: string) {

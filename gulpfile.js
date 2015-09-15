@@ -15,12 +15,29 @@ gulp.task('build-typescript', function () {
         '!' + './src/services/**/*.ts',
         './typings/**/*.d.ts'])
         .pipe($.tsc({
-        target: 'ES5',
-        out: 'framework.js',
-        declaration: true,
-        sourceMap: false
-    }))
+            target: 'ES5',
+            out: 'framework.js',
+            declaration: true,
+            sourceMap: false
+        }))
         .pipe(gulp.dest('./dist/'));
+});
+
+gulp.task('build-services', function () {
+    return gulp.src([
+        './src/services/**/*.ts',
+        './typings/**/*.d.ts'])
+        .pipe($.tsc({
+            target: 'ES5',
+            out: 'services.js',
+            declaration: true,
+            sourceMap: false
+        }))
+        .pipe(gulp.dest('./dist/'));
+});
+
+gulp.task('watch', ['watch-typescript', 'browser-sync'], function () {
+
 });
 
 gulp.task('watch-typescript', function () {
@@ -30,9 +47,9 @@ gulp.task('watch-typescript', function () {
 gulp.task('browser-sync', function () {
     browserSync.init({
         server: './',
-        index: 'index-test.html',
+        index: '/test/index-test.html',
         port: 4000,
-        files: ['./dist/*', 'index-test.html']
+        files: ['./dist/*', './test/index-test.html']
     });
 });
 

@@ -1,6 +1,5 @@
 /// <reference path="../typings/d3/d3.d.ts"/>
 /// <reference path="../dist/framework.d.ts"/>
-console.log('Hello');
 var logger = new LeDragon.Framework.Utilities.logger(console);
 try {
     var map = new LeDragon.Framework.Map.map('#test', logger, d3);
@@ -27,4 +26,16 @@ try {
     //});
 } catch (e) {
     logger.errorFormat(e);
+}
+
+function center() {
+    map.centerOnPosition(5, 50);
+}
+
+function zoomOnBelgium() {
+    map.zoomOnCountry('belgium');
+}
+
+function drawStates() {
+    
 }

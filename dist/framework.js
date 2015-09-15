@@ -63,14 +63,19 @@ var LeDragon;
         (function (Map) {
             var position = Map.Models.position;
             var map = (function () {
-                function map(container, logger, d3) {
-                    var _this = this;
+                function map(container, logger, _d3) {
                     this.logger = logger;
-                    this.d3 = d3;
+                    this._d3 = _d3;
+                    this.init(container);
+                }
+                map.prototype.init = function (container) {
+                    var _this = this;
                     this.handle(function () {
-                        var c = _this.d3.select(container);
+                        var c = _this._d3.select(container);
                         var width = c.node().clientWidth;
                         var height = c.node().clientHeight;
+                        _this.width = width;
+                        _this.height = height;
                         _this._group = c
                             .append('svg')
                             .attr({
@@ -88,14 +93,14 @@ var LeDragon;
                             .classed('states', true);
                         _this._positionsGroup = _this._group.append('g')
                             .classed('positions', true);
-                        _this._projection = _this.d3.geo.mercator()
+                        _this._projection = _this._d3.geo.mercator()
                             .center([0, 0])
                             .translate([width / 2, height / 2])
                             .scale(width / 8);
-                        _this._pathGenerator = _this.d3.geo.path().projection(_this._projection);
+                        _this._pathGenerator = _this._d3.geo.path().projection(_this._projection);
                         _this._positions = [];
                     }, 'Initialization failed');
-                }
+                };
                 map.prototype.drawCountries = function (countries) {
                     var _this = this;
                     this.handle(function () {
@@ -118,14 +123,16 @@ var LeDragon;
                 map.prototype.drawStates = function (states, color) {
                     var _this = this;
                     this.logger.debugFormat(states);
-                    var d = this._statesGroup
+                    var selection = this._statesGroup
                         .selectAll('path')
                         .data(states);
-                    d.enter()
+                    selection.enter()
                         .append('path');
-                    d.attr('d', function (d, i) { return _this._pathGenerator(d); });
-                    d.attr('fill', color);
-                    d.exit().remove();
+                    selection.attr('d', function (d, i) { return _this._pathGenerator(d); });
+                    if (color) {
+                        selection.attr('fill', color);
+                    }
+                    selection.exit().remove();
                 };
                 map.prototype.addPosition = function (longitude, latitude, color) {
                     var _this = this;
@@ -176,7 +183,21 @@ var LeDragon;
                         this.logger.errorFormat("No country with name " + 0 + " found.");
                     }
                     else {
+                        var c = this.getCentering(country, this._pathGenerator);
                     }
+                };
+                map.prototype.getCentering = function (d, pathGenerator) {
+                    var bounds = pathGenerator.bounds(d);
+                    var dx = bounds[1][0] - bounds[0][0];
+                    var dy = bounds[1][1] - bounds[0][1];
+                    var x = (bounds[0][0] + bounds[1][0]) / 2;
+                    var y = (bounds[0][1] + bounds[1][1]) / 2;
+                    var scale = .9 / Math.max(dx / this.width, dy / this.height);
+                    var translate = [this.width / 2 - scale * x, this.height / 2 - scale * y];
+                    return {
+                        scale: scale,
+                        translate: translate
+                    };
                 };
                 map.prototype.handle = function (method, message) {
                     try {
