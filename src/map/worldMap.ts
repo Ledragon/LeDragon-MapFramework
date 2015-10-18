@@ -4,6 +4,8 @@
 /// <reference path="../topojson.d.ts" />
 /// <reference path="../models/position.ts" />
 /// <reference path="../utilities/logger.ts" />
+/// <reference path="projection.ts" />
+/// <reference path="projectionType.ts" />
 module LeDragon.Framework.Map {
     import position = Models.position;
     export interface IworldMap {
@@ -31,7 +33,7 @@ module LeDragon.Framework.Map {
         constructor(container: any, private logger: Utilities.Ilogger, private _d3: D3.Base) {
             this.init(container)
         }
-        
+
         private init(container) {
             this.handle(() => {
                 var c = this._d3.select(container);
@@ -56,10 +58,18 @@ module LeDragon.Framework.Map {
                     .classed('states', true);
                 this._positionsGroup = this._group.append('g')
                     .classed('positions', true);
-                this._projection = this._d3.geo.mercator()
-                    .center([0, 0])
-                    .translate([width / 2, height / 2])
-                    .scale(width / 8);
+
+                this._projection = new projection(this._d3, projectionType.Orthographic, this.width, this.height)
+                    .projection(); 
+                // this._projection = this._d3.geo.mercator()
+                //     .center([0, 0])
+                //     .translate([width / 2, height / 2])
+                //     .scale(width / 8);
+                
+                // this._projection = this._d3.geo.orthographic()
+                //     .center([0, 0])
+                //     .translate([width / 2, height / 2])
+                //     .scale(width / 8);
                 this._pathGenerator = this._d3.geo.path().projection(this._projection);
 
                 this._positions = [];
@@ -86,7 +96,7 @@ module LeDragon.Framework.Map {
 
                 },
                 'Drawing of map failed.'
-                );
+            );
         }
 
         drawStates(states: any, color?: string) {

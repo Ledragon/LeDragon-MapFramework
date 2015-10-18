@@ -10,6 +10,24 @@ declare module LeDragon.Framework.Map.Models {
         color: string;
     }
 }
+declare module LeDragon.Framework.Map {
+    enum projectionType {
+        Mercator = 0,
+        Orthographic = 1,
+    }
+}
+declare module LeDragon.Framework.Map {
+    interface Iprojection {
+    }
+    class projection {
+        private _d3;
+        private _projection;
+        private _width;
+        private _height;
+        constructor(_d3: D3.Base, type: projectionType, width: number, height: number);
+        projection(): D3.Geo.Projection;
+    }
+}
 declare module LeDragon.Framework.Utilities {
     interface Ilogger {
         debugFormat: (message: string) => void;

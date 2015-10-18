@@ -18,7 +18,7 @@ gulp.task('build-typescript', function () {
             target: 'ES5',
             out: 'framework.js',
             declaration: true,
-            sourceMap: false
+            sourceMap: true
         }))
         .pipe(gulp.dest('./dist/'));
 });

@@ -22,6 +22,60 @@ var LeDragon;
 (function (LeDragon) {
     var Framework;
     (function (Framework) {
+        var Map;
+        (function (Map) {
+            (function (projectionType) {
+                projectionType[projectionType["Mercator"] = 0] = "Mercator";
+                projectionType[projectionType["Orthographic"] = 1] = "Orthographic";
+            })(Map.projectionType || (Map.projectionType = {}));
+            var projectionType = Map.projectionType;
+        })(Map = Framework.Map || (Framework.Map = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
+/// <reference path="../../typings/d3/d3.d.ts" />
+/// <reference path="projectionType.ts" />
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Map;
+        (function (Map) {
+            var projection = (function () {
+                function projection(_d3, type, width, height) {
+                    this._d3 = _d3;
+                    this._width = width;
+                    this._height = height;
+                    switch (type) {
+                        case Map.projectionType.Mercator:
+                            this._projection = this._d3.geo.mercator()
+                                .center([0, 0])
+                                .translate([width / 2, height / 2])
+                                .scale(width / 8);
+                            break;
+                        case Map.projectionType.Orthographic:
+                            this._projection = this._d3.geo.orthographic()
+                                .center([0, 0])
+                                .translate([width / 2, height / 2])
+                                .scale(width / 3);
+                            break;
+                        default:
+                            throw new Error('Unknown projection type');
+                            break;
+                    }
+                }
+                projection.prototype.projection = function () {
+                    return this._projection;
+                };
+                return projection;
+            })();
+            Map.projection = projection;
+        })(Map = Framework.Map || (Framework.Map = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
         var Utilities;
         (function (Utilities) {
             var logger = (function () {
@@ -55,6 +109,8 @@ var LeDragon;
 /// <reference path="../topojson.d.ts" />
 /// <reference path="../models/position.ts" />
 /// <reference path="../utilities/logger.ts" />
+/// <reference path="projection.ts" />
+/// <reference path="projectionType.ts" />
 var LeDragon;
 (function (LeDragon) {
     var Framework;
@@ -93,10 +149,16 @@ var LeDragon;
                             .classed('states', true);
                         _this._positionsGroup = _this._group.append('g')
                             .classed('positions', true);
-                        _this._projection = _this._d3.geo.mercator()
-                            .center([0, 0])
-                            .translate([width / 2, height / 2])
-                            .scale(width / 8);
+                        _this._projection = new Map.projection(_this._d3, Map.projectionType.Orthographic, _this.width, _this.height)
+                            .projection();
+                        // this._projection = this._d3.geo.mercator()
+                        //     .center([0, 0])
+                        //     .translate([width / 2, height / 2])
+                        //     .scale(width / 8);
+                        // this._projection = this._d3.geo.orthographic()
+                        //     .center([0, 0])
+                        //     .translate([width / 2, height / 2])
+                        //     .scale(width / 8);
                         _this._pathGenerator = _this._d3.geo.path().projection(_this._projection);
                         _this._positions = [];
                     }, 'Initialization failed');
