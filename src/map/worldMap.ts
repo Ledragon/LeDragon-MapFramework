@@ -27,6 +27,8 @@ module LeDragon.Framework.Map {
         private _geoCountries: GeoJSON.FeatureCollection;
         private _positions: Array<position>;
 
+        private _scale;
+
         private width: number;
         private height: number;
 
@@ -43,15 +45,8 @@ module LeDragon.Framework.Map {
                 this.height = height;
                 this._group = c
                     .append('svg')
-                // .attr({
-                //     'width': width,
-                //     'height': height
-                // })
                     .append('g')
                     .classed('map', true);
-                //                d3.select(window).on('resize', () => {
-                //                    console.log(c.node().clientWidth + '*' + c.node().clientHeight);
-                //                });
                 this._countriesGroup = this._group.append('g')
                     .classed('countries', true);
                 this._statesGroup = this._group.append('g')
@@ -59,25 +54,11 @@ module LeDragon.Framework.Map {
                 this._positionsGroup = this._group.append('g')
                     .classed('positions', true);
 
-                // this._projection = new projection(this._d3, projectionType.Orthographic, this.width, this.height)
-                //     .projection(); 
-                // this._projection = this._d3.geo.mercator()
-                //     .center([0, 0])
-                //     .translate([width / 2, height / 2])
-                //     .scale(width / 8);
-                
-                // this._projection = this._d3.geo.orthographic()
-                //     .center([0, 0])
-                //     .translate([width / 2, height / 2])
-                //     .scale(width / 8);
-                // this._pathGenerator = this._d3.geo.path().projection(this._projection);
-
                 this._positions = [];
                 this.setSize(c);
 
                 (<d3.Selection<any>>this._d3.select(window)).on('resize', (d, i) => {
                     this.setSize(c);
-
                 });
             }, 'Initialization failed');
         }
@@ -89,9 +70,10 @@ module LeDragon.Framework.Map {
                 'width': width,
                 'height': height
             });
-            this.logger.debugFormat(`width: ${width}, height:${height}`)
+            this.logger.debugFormat(`width: ${width}, height:${height}`);
             this._projection = new projection(this._d3, projectionType.Orthographic, width, height)
                 .projection();
+                // .scale(this._scale?this._scale:width/2);
             this._pathGenerator = this._d3.geo.path().projection(this._projection);
             if (this._countries) {
                 var dataSelection = this.selectCountries();
@@ -99,7 +81,7 @@ module LeDragon.Framework.Map {
             }
             if (this._positions) {
                 this.updatePositions(this.selectPositions());
-            }    
+            }
         }
 
         drawCountries(countries: TopoJSON.TopoJSONObject): void {
@@ -113,6 +95,7 @@ module LeDragon.Framework.Map {
                     this.appendCountries(dataSelection);
                     this.updateCountries(dataSelection);
                     this.deleteCountries(dataSelection);
+
                     this.logger.debugFormat('Countries drawn.');
                 },
                 'Drawing of map failed.'
@@ -165,7 +148,6 @@ module LeDragon.Framework.Map {
                 var p = new position(longitude, latitude);
                 p.color = color;
                 this._positions.push(p);
-                // var projected = this._projection([longitude, latitude]);
                 var dataSelection = this.selectPositions();
                 dataSelection.enter()
                     .append('circle')
@@ -173,34 +155,32 @@ module LeDragon.Framework.Map {
                         'r': 2
                     });
                 this.updatePositions(dataSelection);
-                // if (color) {
-                //     circle.attr('fill', color);
-                // }
                 this.logger.debugFormat('Position added.');
             }, 'Addition of position failed');
         }
-        
-        private selectPositions():d3.selection.Update<position> {
+
+        private selectPositions(): d3.selection.Update<position> {
             var dataSelection = this._positionsGroup.selectAll('circle')
                 .data(this._positions);
             return dataSelection;
         }
-        
+
         private updatePositions(selection: d3.selection.Update<position>) {
-            
-                selection
-                    .attr({
-                        'cx': (d:position)=>this._projection([d.longitude, d.latitude])[0],
-                        'cy': (d:position)=>this._projection([d.longitude, d.latitude])[1]
-                    })
-                    .style({
-                        'fill': d=> d.color ? d.color : 'black'
-                    });
+            selection
+                .attr({
+                    'cx': (d: position) => this._projection([d.longitude, d.latitude])[0],
+                    'cy': (d: position) => this._projection([d.longitude, d.latitude])[1],
+                    'r': 2
+                })
+                .style({
+                    'fill': d=> d.color ? d.color : 'black'
+                });
         }
 
         centerOnPosition(longitude: number, latitude: number) {
             this.handle(() => {
-                this._projection.center([longitude, latitude]).scale(8000);
+                this._scale = 8000;
+                this._projection.center([longitude, latitude]).scale(this._scale);
                 this._countriesGroup
                     .selectAll('path')
                     .data(this._geoCountries.features)
@@ -209,15 +189,7 @@ module LeDragon.Framework.Map {
                         var result = this._pathGenerator(d);
                         return result;
                     });
-                this._positionsGroup
-                    .selectAll('circle')
-                    .data(this._positions)
-                    .transition()
-                    .attr({
-                        'cx': (d: any, i: any) => this._projection([d.longitude, d.latitude])[0],
-                        'cy': (d: any, i: any) => this._projection([d.longitude, d.latitude])[1],
-                        'r': '2'
-                    });
+                this.updatePositions(this.selectPositions());
             }, 'Centering on position failed.');
         }
 

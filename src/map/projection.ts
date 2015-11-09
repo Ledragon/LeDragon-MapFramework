@@ -9,6 +9,7 @@ module LeDragon.Framework.Map {
         private _projection: d3.geo.Projection;
         private _width: number;
         private _height: number;
+        private _scale: number;
         
         constructor(private _d3: any, type: projectionType, width: number, height: number) {
             this._width = width;
@@ -35,5 +36,6 @@ module LeDragon.Framework.Map {
         projection(): d3.geo.Projection{
             return this._projection;
         }
+        
     }
 }
