@@ -9,7 +9,7 @@ module LeDragon.Framework.Map.Services {
 
 
 	export class readerService implements IreaderService {
-		constructor(private logger: Utilities.Ilogger, private d3:D3.Base) {
+		constructor(private logger: Utilities.Ilogger, private d3:any) {
 
 		}
 

@@ -22,7 +22,7 @@ module LeDragon.Framework.Map.Services {
 		private _states10mPath = '/src/data/states-provinces-10m.topo.json';
 		private _states10m: GeoJSON.FeatureCollection;
 
-		constructor(private _logger: Utilities.Ilogger, private _d3: D3.Base) {
+		constructor(private _logger: Utilities.Ilogger, private _d3: any) {
 			super(_logger, _d3);
 		}
 

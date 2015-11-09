@@ -2,15 +2,15 @@
 /// <reference path="projectionType.ts" />
 module LeDragon.Framework.Map {
     export interface Iprojection {
-
+        projection(): d3.geo.Projection;
     }
 
     export class projection {
-        private _projection: D3.Geo.Projection;
+        private _projection: d3.geo.Projection;
         private _width: number;
         private _height: number;
         
-        constructor(private _d3: D3.Base, type: projectionType, width: number, height: number) {
+        constructor(private _d3: any, type: projectionType, width: number, height: number) {
             this._width = width;
             this._height = height;
             switch (type) {
@@ -32,7 +32,7 @@ module LeDragon.Framework.Map {
             }
         }
         
-        projection(): D3.Geo.Projection{
+        projection(): d3.geo.Projection{
             return this._projection;
         }
     }

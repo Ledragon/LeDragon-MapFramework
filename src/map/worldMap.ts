@@ -16,13 +16,13 @@ module LeDragon.Framework.Map {
     }
 
     export class map implements IworldMap {
-        private _group: D3.Selection;
-        private _countriesGroup: D3.Selection;
-        private _positionsGroup: D3.Selection;
-        private _statesGroup: D3.Selection;
+        private _group: d3.Selection<any>;
+        private _countriesGroup: d3.Selection<any>;
+        private _positionsGroup: d3.Selection<any>;
+        private _statesGroup: d3.Selection<any>;
 
-        private _projection: D3.Geo.Projection;
-        private _pathGenerator: D3.Geo.Path;
+        private _projection: d3.geo.Projection;
+        private _pathGenerator: d3.geo.Path;
         private _countries: TopoJSON.TopoJSONObject;
         private _geoCountries: GeoJSON.FeatureCollection;
         private _positions: Array<position>;
@@ -30,7 +30,7 @@ module LeDragon.Framework.Map {
         private width: number;
         private height: number;
 
-        constructor(container: any, private logger: Utilities.Ilogger, private _d3: D3.Base) {
+        constructor(container: any, private logger: Utilities.Ilogger, private _d3: any) {
             this.init(container)
         }
 
@@ -43,10 +43,10 @@ module LeDragon.Framework.Map {
                 this.height = height;
                 this._group = c
                     .append('svg')
-                    .attr({
-                        'width': width,
-                        'height': height
-                    })
+                // .attr({
+                //     'width': width,
+                //     'height': height
+                // })
                     .append('g')
                     .classed('map', true);
                 //                d3.select(window).on('resize', () => {
@@ -59,8 +59,8 @@ module LeDragon.Framework.Map {
                 this._positionsGroup = this._group.append('g')
                     .classed('positions', true);
 
-                this._projection = new projection(this._d3, projectionType.Orthographic, this.width, this.height)
-                    .projection(); 
+                // this._projection = new projection(this._d3, projectionType.Orthographic, this.width, this.height)
+                //     .projection(); 
                 // this._projection = this._d3.geo.mercator()
                 //     .center([0, 0])
                 //     .translate([width / 2, height / 2])
@@ -70,33 +70,79 @@ module LeDragon.Framework.Map {
                 //     .center([0, 0])
                 //     .translate([width / 2, height / 2])
                 //     .scale(width / 8);
-                this._pathGenerator = this._d3.geo.path().projection(this._projection);
+                // this._pathGenerator = this._d3.geo.path().projection(this._projection);
 
                 this._positions = [];
+                this.setSize(c);
+
+                (<d3.Selection<any>>this._d3.select(window)).on('resize', (d, i) => {
+                    this.setSize(c);
+
+                });
             }, 'Initialization failed');
+        }
+
+        private setSize(container: any) {
+            var width = container.node().clientWidth;
+            var height = container.node().clientHeight;
+            container.select('svg').attr({
+                'width': width,
+                'height': height
+            });
+            this.logger.debugFormat(`width: ${width}, height:${height}`)
+            this._projection = new projection(this._d3, projectionType.Orthographic, width, height)
+                .projection();
+            this._pathGenerator = this._d3.geo.path().projection(this._projection);
+            if (this._countries) {
+                var dataSelection = this.selectCountries();
+                this.updateCountries(dataSelection);
+            }
+            if (this._positions) {
+                this.updatePositions(this.selectPositions());
+            }    
         }
 
         drawCountries(countries: TopoJSON.TopoJSONObject): void {
             this.handle(
                 () => {
-                    this.logger.debugFormat('Drawing map.');
+                    this.logger.debugFormat(`Drawing countries.`);
                     this._countries = countries;
                     this._geoCountries = topojson.feature(countries, countries.objects.countries);
-                    this._countriesGroup
-                        .selectAll('path')
-                        .data(this._geoCountries.features)
-                        .enter()
-                        .append('g')
-                        .classed('country', true)
-                        .attr('id', (d: any, i: any) => d.properties.adm0_a3)
-                        .append('path')
-                        .attr('d', (d: any, i: any) => this._pathGenerator(d))
-                        .classed('normal', true);
-                    this.logger.debugFormat('Map drawn.');
 
+                    var dataSelection = this.selectCountries();
+                    this.appendCountries(dataSelection);
+                    this.updateCountries(dataSelection);
+                    this.deleteCountries(dataSelection);
+                    this.logger.debugFormat('Countries drawn.');
                 },
                 'Drawing of map failed.'
             );
+        }
+
+        private selectCountries(): d3.selection.Update<GeoJSON.Feature> {
+            var dataSelection = this._countriesGroup
+                .selectAll('.country')
+                .data(this._geoCountries.features);
+            return dataSelection;
+        }
+
+        private appendCountries(selection: d3.selection.Update<GeoJSON.Feature>) {
+            selection.enter()
+                .append('g')
+                .classed('country', true)
+                .append('path')
+                .classed('normal', true);
+        }
+
+        private updateCountries(selection: d3.Selection<GeoJSON.Feature>) {
+            selection.select('.country')
+                .attr('id', (d: any, i: any) => d.properties.adm0_a3)
+            selection.select('path')
+                .attr('d', (d: any, i: any) => this._pathGenerator(d));
+        }
+
+        private deleteCountries(selection: d3.selection.Update<GeoJSON.Feature>) {
+            selection.exit().remove();
         }
 
         drawStates(states: any, color?: string) {
@@ -119,18 +165,37 @@ module LeDragon.Framework.Map {
                 var p = new position(longitude, latitude);
                 p.color = color;
                 this._positions.push(p);
-                var projected = this._projection([longitude, latitude]);
-                var circle = this._positionsGroup.append('circle')
+                // var projected = this._projection([longitude, latitude]);
+                var dataSelection = this.selectPositions();
+                dataSelection.enter()
+                    .append('circle')
                     .attr({
-                        'r': 2,
-                        'cx': projected[0],
-                        'cy': projected[1]
+                        'r': 2
                     });
-                if (color) {
-                    circle.attr('fill', color);
-                }
+                this.updatePositions(dataSelection);
+                // if (color) {
+                //     circle.attr('fill', color);
+                // }
                 this.logger.debugFormat('Position added.');
             }, 'Addition of position failed');
+        }
+        
+        private selectPositions():d3.selection.Update<position> {
+            var dataSelection = this._positionsGroup.selectAll('circle')
+                .data(this._positions);
+            return dataSelection;
+        }
+        
+        private updatePositions(selection: d3.selection.Update<position>) {
+            
+                selection
+                    .attr({
+                        'cx': (d:position)=>this._projection([d.longitude, d.latitude])[0],
+                        'cy': (d:position)=>this._projection([d.longitude, d.latitude])[1]
+                    })
+                    .style({
+                        'fill': d=> d.color ? d.color : 'black'
+                    });
         }
 
         centerOnPosition(longitude: number, latitude: number) {
@@ -160,14 +225,14 @@ module LeDragon.Framework.Map {
             var country = _.find(this._geoCountries.features,
                 c=> c.properties.name.toLowerCase() === countryName.toLowerCase());
             if (!country) {
-                this.logger.errorFormat(`No country with name ${0} found.`);
+                this.logger.errorFormat(`No country with name ${countryName} found.`);
             }
             else {
                 var c = this.getCentering(country, this._pathGenerator);
             }
         }
 
-        private getCentering(d, pathGenerator: D3.Geo.Path) {
+        private getCentering(d, pathGenerator: d3.geo.Path) {
             var bounds = pathGenerator.bounds(d);
             var dx = bounds[1][0] - bounds[0][0];
             var dy = bounds[1][1] - bounds[0][1];

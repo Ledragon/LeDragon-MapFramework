@@ -6,16 +6,16 @@
   "bundle": "typings/tsd.d.ts",
   "installed": {
     "d3/d3.d.ts": {
-      "commit": "aadd63ecae3feb76ea2d4be80511e266b5c2c4a7"
+      "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
     },
     "q/Q.d.ts": {
-      "commit": "aadd63ecae3feb76ea2d4be80511e266b5c2c4a7"
+      "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
     },
     "lodash/lodash.d.ts": {
-      "commit": "aadd63ecae3feb76ea2d4be80511e266b5c2c4a7"
+      "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
     },
     "geojson/geojson.d.ts": {
-      "commit": "c2b70ba731a485968fa3e0561a32652f59787015"
+      "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
     }
   }
 }

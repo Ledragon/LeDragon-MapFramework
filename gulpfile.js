@@ -14,11 +14,9 @@ gulp.task('build-typescript', function () {
         //TMP exclude services for the client side library, they are only required for a server side library that can access the file system
         '!' + './src/services/**/*.ts',
         './typings/**/*.d.ts'])
-        .pipe($.tsc({
+        .pipe($.typescript({
             target: 'ES5',
-            out: 'framework.js',
-            declaration: true,
-            sourceMap: true
+            out: 'framework.js'
         }))
         .pipe(gulp.dest('./dist/'));
 });
@@ -47,7 +45,7 @@ gulp.task('watch-typescript', function () {
 gulp.task('browser-sync', function () {
     browserSync.init({
         server: './',
-        index: '/test/index-test.html',
+        index: 'test/index-test.html',
         port: 4000,
         files: ['./dist/*', './test/index-test.html']
     });
