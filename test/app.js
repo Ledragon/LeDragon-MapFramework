@@ -13,12 +13,12 @@ try {
             console.log(error);
         });
 
-    // reader.getStates10m('FRA')
-    //     .then(function (result) {
-    //         console.log(result.length);
-    //         var franceMap = new LeDragon.Framework.Map.map('#france', logger, d3);
-    //         franceMap.drawStates(result);
-    //     });
+    reader.getStates10m('FRA')
+        .then(function (result) {
+            console.log(result.length);
+            // var franceMap = new LeDragon.Framework.Map.map('#france', logger, d3);
+            // franceMap.drawStates(result);
+        });
 } catch (e) {
     logger.errorFormat(e);
 }
@@ -37,4 +37,13 @@ function drawStates() {
 
 function reset() {
     map.reset();
+}
+var x = 0;
+var y = 0;
+var z = 0;
+function rotate() {
+    x += 10;
+    y += 2;
+    z += 1;
+    map.rotate([x,y,z]);
 }

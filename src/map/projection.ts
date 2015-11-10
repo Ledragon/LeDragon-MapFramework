@@ -7,6 +7,7 @@ module LeDragon.Framework.Map {
         projectionType(value?: projectionType): projection | projectionType;
         center(latitude: number, longitude: number): projection;
         scale(value: number): projection;
+        rotate(value?: [number, number, number]): projection | [number, number, number];
     }
 
     export class projection {
@@ -37,7 +38,8 @@ module LeDragon.Framework.Map {
                     this._projection = this._d3.geo.orthographic()
                         .center(this._center)
                         .translate([this._width / 2, this._height / 2])
-                        .scale(this._width / 2);
+                        .scale(this._width / 2)
+                        .clipAngle(90);
                     break;
                 default:
                     throw new Error('Unknown projection type');
@@ -85,6 +87,14 @@ module LeDragon.Framework.Map {
         scale(value: number): projection {
             this._projection.scale(value);
             return this;
+        }
+
+        rotate(value?: [number, number, number]): projection | [number, number, number] {
+            if (value) {
+                this._projection.rotate(value);
+                return this;
+            }
+            return this._projection.rotate();
         }
     }
 }

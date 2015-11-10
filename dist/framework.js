@@ -92,7 +92,8 @@ var LeDragon;
                             this._projection = this._d3.geo.orthographic()
                                 .center(this._center)
                                 .translate([this._width / 2, this._height / 2])
-                                .scale(this._width / 2);
+                                .scale(this._width / 2)
+                                .clipAngle(90);
                             break;
                         default:
                             throw new Error('Unknown projection type');
@@ -136,6 +137,13 @@ var LeDragon;
                     this._projection.scale(value);
                     return this;
                 };
+                projection.prototype.rotate = function (value) {
+                    if (value) {
+                        this._projection.rotate(value);
+                        return this;
+                    }
+                    return this._projection.rotate();
+                };
                 return projection;
             })();
             Map.projection = projection;
@@ -167,10 +175,36 @@ var LeDragon;
                     var _this = this;
                     this.handle(function () {
                         var c = _this._d3.select(container);
-                        _this._group = c
-                            .append('svg')
+                        var svg = c
+                            .append('svg');
+                        var gradient = svg
+                            .append('defs')
+                            .append('radialGradient')
+                            .attr({
+                            'id': 'grad',
+                            'x1': '0%',
+                            'x2': '0%',
+                            'y1': '100%',
+                            'y2': '0%'
+                        });
+                        gradient.append('stop')
+                            .attr('offset', '0%')
+                            .style({
+                            'stop-color': 'rgb(0,255,255)',
+                            'stop-opacity': '1'
+                        });
+                        gradient.append('stop')
+                            .attr('offset', '100%')
+                            .style({
+                            'stop-color': 'rgb(0,0,255)',
+                            'stop-opacity': '1'
+                        });
+                        ;
+                        _this._group = svg
                             .append('g')
                             .classed('map', true);
+                        _this._borderGroup = _this._group.append('g')
+                            .classed('border', true);
                         _this._countriesGroup = _this._group.append('g')
                             .classed('countries', true);
                         _this._statesGroup = _this._group.append('g')
@@ -186,6 +220,8 @@ var LeDragon;
                         _this._positions = [];
                         _this._ratio = 1;
                         _this._projection = new Map.projection(_this._d3, Map.projectionType.Orthographic, 1, 1);
+                        _this._borderGroup.append('circle')
+                            .style('fill', 'url(#grad)');
                         _this._pathGenerator = _this._d3.geo.path().projection(_this._projection.projection());
                         _this.setSize(c);
                         _this._d3.select(window)
@@ -209,9 +245,16 @@ var LeDragon;
                         'width': width,
                         'height': height
                     });
+                    this._borderGroup.select('circle')
+                        .transition()
+                        .attr({
+                        r: width / 2,
+                        cx: width / 2,
+                        cy: width / 2
+                    });
                     this._logger.debugFormat("width: " + width + ", height:" + height);
                     this._projection.resize(width, height);
-                    this._pathGenerator = this._d3.geo.path().projection(this._projection.projection());
+                    // this._pathGenerator = (<d3.geo.Path>this._d3.geo.path()).projection(this._projection.projection());
                     this.updateAll();
                     // var dataSelection = this.selectCountries();
                     // this.updateCountries(dataSelection);
@@ -247,9 +290,10 @@ var LeDragon;
                 };
                 map.prototype.updateCountries = function (selection) {
                     var _this = this;
-                    selection.select('.country')
+                    selection
                         .attr('id', function (d, i) { return d.properties.adm0_a3; });
                     selection.select('path')
+                        .transition()
                         .attr('d', function (d, i) { return _this._pathGenerator(d); });
                 };
                 map.prototype.deleteCountries = function (selection) {
@@ -294,6 +338,7 @@ var LeDragon;
                 map.prototype.updatePositions = function (selection) {
                     var d3Projection = this._projection.projection();
                     selection
+                        .transition()
                         .attr({
                         'cx': function (d) { return d3Projection([d.longitude, d.latitude])[0]; },
                         'cy': function (d) { return d3Projection([d.longitude, d.latitude])[1]; },
@@ -328,14 +373,25 @@ var LeDragon;
                     }
                     else {
                         var c = this.getCentering(country, this._pathGenerator);
+                        this._projection.projection()
+                            .scale(c.scale)
+                            .translate(c.translate)
+                            .center(c.center);
+                        this.updateAll();
                     }
                 };
                 map.prototype.reset = function () {
                     this._projection
-                        .scale(200)
-                        .center(0, 0);
-                    var dataSelection = this.selectCountries();
-                    this.updateCountries(dataSelection);
+                        .center(0, 0)
+                        .rotate([0, 0, 0]);
+                    this.updateAll();
+                    // var dataSelection = this.selectCountries();
+                    // this.updateCountries(dataSelection);
+                };
+                map.prototype.rotate = function (value) {
+                    this._projection
+                        .rotate(value);
+                    this.updateAll();
                 };
                 map.prototype.type = function (value) {
                     this._projection.projectionType(value);
@@ -356,7 +412,8 @@ var LeDragon;
                     var translate = [this.width / 2 - scale * x, this.height / 2 - scale * y];
                     return {
                         scale: scale,
-                        translate: translate
+                        translate: translate,
+                        center: [x, y]
                     };
                 };
                 map.prototype.handle = function (method, message) {

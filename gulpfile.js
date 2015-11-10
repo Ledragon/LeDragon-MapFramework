@@ -5,6 +5,7 @@ var $ = require('gulp-load-plugins')({
 var browserSync = require('browser-sync');
 
 var typescriptFiles = './src/**/*.ts';
+var lessFiles = './src/content/*.less';
 var dist = './dist/';
 var distFiles = dist + '**/*.*';
 
@@ -33,12 +34,22 @@ gulp.task('build-services', function () {
         .pipe(gulp.dest('./dist/'));
 });
 
-gulp.task('watch', ['watch-typescript', 'browser-sync'], function () {
+gulp.task('build-less', function () {
+    return gulp.src([lessFiles])
+        .pipe($.less())
+        .pipe(gulp.dest('./dist/'));
+});
+
+gulp.task('watch', ['watch-typescript', 'watch-less', 'browser-sync'], function () {
 
 });
 
 gulp.task('watch-typescript', function () {
     gulp.watch(typescriptFiles, ['build-typescript']);
+});
+
+gulp.task('watch-less', function () {
+    gulp.watch(lessFiles, ['build-less']);
 });
 
 gulp.task('browser-sync', function () {

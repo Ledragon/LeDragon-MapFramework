@@ -20,6 +20,7 @@ module LeDragon.Framework.Map {
         private _countriesGroup: d3.Selection<any>;
         private _positionsGroup: d3.Selection<any>;
         private _statesGroup: d3.Selection<any>;
+        private _borderGroup: d3.Selection<any>;
 
         private _projection: Iprojection;
         private _pathGenerator: d3.geo.Path;
@@ -40,10 +41,37 @@ module LeDragon.Framework.Map {
         private init(container) {
             this.handle(() => {
                 var c = this._d3.select(container);
-                this._group = c
-                    .append('svg')
+                var svg = c
+                    .append('svg');
+                var gradient = svg
+                    .append('defs')
+                    .append('radialGradient')
+                    .attr({
+                        'id': 'grad',
+                        'x1': '0%',
+                        'x2': '0%',
+                        'y1': '100%',
+                        'y2': '0%'
+                    });
+                gradient.append('stop')
+                    .attr('offset', '0%')
+                    .style({
+                        'stop-color': 'rgb(0,255,255)',
+                        'stop-opacity': '1'
+                    });
+                gradient.append('stop')
+                    .attr('offset', '100%')
+                    .style({
+                        'stop-color': 'rgb(0,0,255)',
+                        'stop-opacity': '1'
+                    });
+                ;
+                this._group = svg
                     .append('g')
                     .classed('map', true);
+
+                this._borderGroup = this._group.append('g')
+                    .classed('border', true);
                 this._countriesGroup = this._group.append('g')
                     .classed('countries', true);
                 this._statesGroup = this._group.append('g')
@@ -60,6 +88,9 @@ module LeDragon.Framework.Map {
                 this._positions = [];
                 this._ratio = 1;
                 this._projection = new projection(this._d3, projectionType.Orthographic, 1, 1);
+                this._borderGroup.append('circle')
+                    .style('fill', 'url(#grad)');
+
                 this._pathGenerator = (<d3.geo.Path>this._d3.geo.path()).projection(this._projection.projection());
                 this.setSize(c);
 
@@ -85,9 +116,16 @@ module LeDragon.Framework.Map {
                 'width': width,
                 'height': height
             });
+            this._borderGroup.select('circle')
+                .transition()
+                .attr({
+                    r: width / 2,
+                    cx: width / 2,
+                    cy: width / 2
+                });
             this._logger.debugFormat(`width: ${width}, height:${height}`);
             this._projection.resize(width, height);
-            this._pathGenerator = (<d3.geo.Path>this._d3.geo.path()).projection(this._projection.projection());
+            // this._pathGenerator = (<d3.geo.Path>this._d3.geo.path()).projection(this._projection.projection());
             this.updateAll();
             
             // var dataSelection = this.selectCountries();
@@ -131,9 +169,10 @@ module LeDragon.Framework.Map {
         }
 
         private updateCountries(selection: d3.Selection<GeoJSON.Feature>) {
-            selection.select('.country')
+            selection
                 .attr('id', (d: any, i: any) => d.properties.adm0_a3)
             selection.select('path')
+                .transition()
                 .attr('d', (d: any, i: any) => this._pathGenerator(d));
         }
 
@@ -181,6 +220,7 @@ module LeDragon.Framework.Map {
         private updatePositions(selection: d3.selection.Update<position>) {
             var d3Projection = this._projection.projection();
             selection
+                .transition()
                 .attr({
                     'cx': (d: position) => d3Projection([d.longitude, d.latitude])[0],
                     'cy': (d: position) => d3Projection([d.longitude, d.latitude])[1],
@@ -217,15 +257,28 @@ module LeDragon.Framework.Map {
             }
             else {
                 var c = this.getCentering(country, this._pathGenerator);
+                this._projection.projection()
+                    .scale(c.scale)
+                    .translate(c.translate)
+                    .center(<any>c.center);
+                this.updateAll();
             }
         }
 
         reset() {
             this._projection
-                .scale(200)
-                .center(0, 0);
-            var dataSelection = this.selectCountries();
-            this.updateCountries(dataSelection);
+            // .scale(200)
+                .center(0, 0)
+                .rotate([0, 0, 0]);
+            this.updateAll();
+            // var dataSelection = this.selectCountries();
+            // this.updateCountries(dataSelection);
+        }
+
+        rotate(value: [number, number, number]) {
+            this._projection
+                .rotate(value);
+            this.updateAll();
         }
 
         type(value: projectionType) {
@@ -247,10 +300,11 @@ module LeDragon.Framework.Map {
             var x = (bounds[0][0] + bounds[1][0]) / 2;
             var y = (bounds[0][1] + bounds[1][1]) / 2;
             var scale = .9 / Math.max(dx / this.width, dy / this.height);
-            var translate = [this.width / 2 - scale * x, this.height / 2 - scale * y];
+            var translate: [number, number] = [this.width / 2 - scale * x, this.height / 2 - scale * y];
             return {
                 scale: scale,
-                translate: translate
+                translate: translate,
+                center: [x, y]
             };
         }
 
