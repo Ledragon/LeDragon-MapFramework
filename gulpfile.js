@@ -4,7 +4,6 @@ var $ = require('gulp-load-plugins')({
 });
 var browserSync = require('browser-sync');
 
-
 var typescriptFiles = './src/**/*.ts';
 var dist = './dist/';
 var distFiles = dist + '**/*.*';
@@ -14,10 +13,12 @@ gulp.task('build-typescript', function () {
         //TMP exclude services for the client side library, they are only required for a server side library that can access the file system
         '!' + './src/services/**/*.ts',
         './typings/**/*.d.ts'])
+        .pipe($.sourcemaps.init())
         .pipe($.typescript({
             target: 'ES5',
             out: 'framework.js'
         }))
+        .pipe($.sourcemaps.write('.'))
         .pipe(gulp.dest('./dist/'));
 });
 
@@ -25,11 +26,9 @@ gulp.task('build-services', function () {
     return gulp.src([
         './src/services/**/*.ts',
         './typings/**/*.d.ts'])
-        .pipe($.tsc({
+        .pipe($.typescript({
             target: 'ES5',
-            out: 'services.js',
-            declaration: true,
-            sourceMap: false
+            out: 'services.js'
         }))
         .pipe(gulp.dest('./dist/'));
 });

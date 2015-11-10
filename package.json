@@ -19,6 +19,7 @@
     "gulp-inject": "^1.2.0",
     "gulp-less": "^3.0.3",
     "gulp-load-plugins": "^0.10.0",
+    "gulp-sourcemaps": "^1.6.0",
     "gulp-tsc": "^1.1.4",
     "gulp-typescript": "^2.9.2",
     "karma": "^0.12.32",

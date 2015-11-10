@@ -1,5 +1,4 @@
 /// <reference path="../typings/d3/d3.d.ts"/>
-/// <reference path="../dist/framework.d.ts"/>
 var logger = new LeDragon.Framework.Utilities.logger(console);
 try {
     var map = new LeDragon.Framework.Map.map('#test', logger, d3);
@@ -14,9 +13,12 @@ try {
             console.log(error);
         });
 
-    reader.getStates10m('FRA').then(function (result) {
-        console.log(result.length);
-    });
+    // reader.getStates10m('FRA')
+    //     .then(function (result) {
+    //         console.log(result.length);
+    //         var franceMap = new LeDragon.Framework.Map.map('#france', logger, d3);
+    //         franceMap.drawStates(result);
+    //     });
 } catch (e) {
     logger.errorFormat(e);
 }

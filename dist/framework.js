@@ -4,93 +4,6 @@ var LeDragon;
     (function (Framework) {
         var Map;
         (function (Map) {
-            (function (projectionType) {
-                projectionType[projectionType["Mercator"] = 0] = "Mercator";
-                projectionType[projectionType["Orthographic"] = 1] = "Orthographic";
-            })(Map.projectionType || (Map.projectionType = {}));
-            var projectionType = Map.projectionType;
-        })(Map = Framework.Map || (Framework.Map = {}));
-    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
-})(LeDragon || (LeDragon = {}));
-/// <reference path="../../typings/d3/d3.d.ts" />
-/// <reference path="projectionType.ts" />
-var LeDragon;
-(function (LeDragon) {
-    var Framework;
-    (function (Framework) {
-        var Map;
-        (function (Map) {
-            var projection = (function () {
-                function projection(_d3, type, width, height) {
-                    this._d3 = _d3;
-                    this._width = width;
-                    this._height = height;
-                    this._type = type;
-                    switch (type) {
-                        case Map.projectionType.Mercator:
-                            this._projection = this._d3.geo.mercator()
-                                .center([0, 0])
-                                .translate([width / 2, height / 2])
-                                .scale(width / 8);
-                            break;
-                        case Map.projectionType.Orthographic:
-                            this._projection = this._d3.geo.orthographic()
-                                .center([0, 0])
-                                .translate([width / 2, height / 2])
-                                .scale(width / 3);
-                            break;
-                        default:
-                            throw new Error('Unknown projection type');
-                            break;
-                    }
-                }
-                projection.prototype.resize = function (width, height) {
-                    this._width = width;
-                    this._height = height;
-                    this._projection
-                        .translate([width / 2, height / 2]);
-                    switch (this._type) {
-                        case Map.projectionType.Mercator:
-                            this._projection.scale(width / 8);
-                            break;
-                        case Map.projectionType.Orthographic:
-                            this._projection.scale(width / 3);
-                            break;
-                        default:
-                            throw new Error('Unknown projection type');
-                            break;
-                    }
-                };
-                projection.prototype.projectionType = function (value) {
-                    if (arguments) {
-                        this._type = value;
-                        return this;
-                    }
-                    return this._type;
-                };
-                projection.prototype.projection = function () {
-                    return this._projection;
-                };
-                projection.prototype.center = function (latitude, longitude) {
-                    this._projection.center([latitude, longitude]);
-                    return this;
-                };
-                projection.prototype.scale = function (value) {
-                    this._projection.scale(value);
-                    return this;
-                };
-                return projection;
-            })();
-            Map.projection = projection;
-        })(Map = Framework.Map || (Framework.Map = {}));
-    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
-})(LeDragon || (LeDragon = {}));
-var LeDragon;
-(function (LeDragon) {
-    var Framework;
-    (function (Framework) {
-        var Map;
-        (function (Map) {
             var Models;
             (function (Models) {
                 var position = (function () {
@@ -136,6 +49,99 @@ var LeDragon;
         })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Map;
+        (function (Map) {
+            (function (projectionType) {
+                projectionType[projectionType["Mercator"] = 0] = "Mercator";
+                projectionType[projectionType["Orthographic"] = 1] = "Orthographic";
+            })(Map.projectionType || (Map.projectionType = {}));
+            var projectionType = Map.projectionType;
+        })(Map = Framework.Map || (Framework.Map = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
+/// <reference path="../../typings/d3/d3.d.ts" />
+/// <reference path="projectionType.ts" />
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Map;
+        (function (Map) {
+            var projection = (function () {
+                function projection(_d3, type, width, height) {
+                    this._d3 = _d3;
+                    this._width = width;
+                    this._height = height;
+                    this._type = type;
+                    this._center = [0, 0];
+                    this.createProjection();
+                }
+                projection.prototype.createProjection = function () {
+                    switch (this._type) {
+                        case Map.projectionType.Mercator:
+                            this._projection = this._d3.geo.mercator()
+                                .center(this._center)
+                                .translate([this._width / 2, this._height / 2])
+                                .scale(this._width / 8);
+                            break;
+                        case Map.projectionType.Orthographic:
+                            this._projection = this._d3.geo.orthographic()
+                                .center(this._center)
+                                .translate([this._width / 2, this._height / 2])
+                                .scale(this._width / 2);
+                            break;
+                        default:
+                            throw new Error('Unknown projection type');
+                            break;
+                    }
+                };
+                projection.prototype.resize = function (width, height) {
+                    this._width = width;
+                    this._height = height;
+                    this._projection
+                        .translate([width / 2, height / 2]);
+                    switch (this._type) {
+                        case Map.projectionType.Mercator:
+                            this._projection.scale(width / 8);
+                            break;
+                        case Map.projectionType.Orthographic:
+                            this._projection.scale(width / 2);
+                            break;
+                        default:
+                            throw new Error('Unknown projection type');
+                            break;
+                    }
+                };
+                projection.prototype.projectionType = function (value) {
+                    if (arguments) {
+                        this._type = value;
+                        this.createProjection();
+                        return this;
+                    }
+                    return this._type;
+                };
+                projection.prototype.projection = function () {
+                    return this._projection;
+                };
+                projection.prototype.center = function (latitude, longitude) {
+                    this._center = [latitude, longitude];
+                    this._projection.center(this._center);
+                    return this;
+                };
+                projection.prototype.scale = function (value) {
+                    this._projection.scale(value);
+                    return this;
+                };
+                return projection;
+            })();
+            Map.projection = projection;
+        })(Map = Framework.Map || (Framework.Map = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
 /// <reference path="../../typings/d3/d3.d.ts" />
 /// <reference path="../../typings/lodash/lodash.d.ts" />
 /// <reference path="../../typings/geojson/geojson.d.ts" />
@@ -171,7 +177,14 @@ var LeDragon;
                             .classed('states', true);
                         _this._positionsGroup = _this._group.append('g')
                             .classed('positions', true);
+                        _this._geoCountries = {
+                            features: [],
+                            bbox: {},
+                            crs: {},
+                            type: ''
+                        };
                         _this._positions = [];
+                        _this._ratio = 1;
                         _this._projection = new Map.projection(_this._d3, Map.projectionType.Orthographic, 1, 1);
                         _this._pathGenerator = _this._d3.geo.path().projection(_this._projection.projection());
                         _this.setSize(c);
@@ -184,36 +197,33 @@ var LeDragon;
                 map.prototype.setSize = function (container) {
                     var width = container.node().clientWidth;
                     var height;
-                    this._logger.debugFormat("clienwidth: " + width + ", clientHeight:" + height);
-                    var ratio = 4 / 3;
                     if (!width) {
-                        width = height * ratio;
+                        width = height * this._ratio;
                     }
                     else if (!height) {
-                        height = width / ratio;
+                        height = width / this._ratio;
                     }
                     this.width = width;
                     this.height = height;
-                    this._logger.debugFormat("width: " + width + ", height:" + height);
                     container.select('svg').attr({
                         'width': width,
                         'height': height
                     });
                     this._logger.debugFormat("width: " + width + ", height:" + height);
                     this._projection.resize(width, height);
-                    if (this._countries) {
-                        var dataSelection = this.selectCountries();
-                        this.updateCountries(dataSelection);
-                    }
-                    if (this._positions) {
-                        this.updatePositions(this.selectPositions());
-                    }
+                    this._pathGenerator = this._d3.geo.path().projection(this._projection.projection());
+                    this.updateAll();
+                    // var dataSelection = this.selectCountries();
+                    // this.updateCountries(dataSelection);
+                    // if (this._positions) {
+                    //     this.updatePositions(this.selectPositions());
+                    // }
                 };
                 map.prototype.drawCountries = function (countries) {
                     var _this = this;
                     this.handle(function () {
                         _this._logger.debugFormat("Drawing countries.");
-                        _this._countries = countries;
+                        // this._countries = countries;
                         _this._geoCountries = topojson.feature(countries, countries.objects.countries);
                         var dataSelection = _this.selectCountries();
                         _this.appendCountries(dataSelection);
@@ -327,6 +337,15 @@ var LeDragon;
                     var dataSelection = this.selectCountries();
                     this.updateCountries(dataSelection);
                 };
+                map.prototype.type = function (value) {
+                    this._projection.projectionType(value);
+                };
+                map.prototype.updateAll = function () {
+                    // if (this._countries) {
+                    this.updateCountries(this.selectCountries());
+                    // }
+                    this.updatePositions(this.selectPositions());
+                };
                 map.prototype.getCentering = function (d, pathGenerator) {
                     var bounds = pathGenerator.bounds(d);
                     var dx = bounds[1][0] - bounds[0][0];
@@ -356,3 +375,5 @@ var LeDragon;
         })(Map = Framework.Map || (Framework.Map = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
+
+//# sourceMappingURL=framework.js.map

@@ -23,7 +23,7 @@ module LeDragon.Framework.Map {
 
         private _projection: Iprojection;
         private _pathGenerator: d3.geo.Path;
-        private _countries: TopoJSON.TopoJSONObject;
+        // private _countries: TopoJSON.TopoJSONObject;
         private _geoCountries: GeoJSON.FeatureCollection;
         private _positions: Array<position>;
 
@@ -31,8 +31,9 @@ module LeDragon.Framework.Map {
 
         private width: number;
         private height: number;
+        private _ratio: number;
 
-        constructor(container: any, private _logger: Utilities.Ilogger, private _d3: any) {
+        constructor(container: any, private _logger: Utilities.Ilogger, private _d3: typeof d3) {
             this.init(container)
         }
 
@@ -50,7 +51,14 @@ module LeDragon.Framework.Map {
                 this._positionsGroup = this._group.append('g')
                     .classed('positions', true);
 
+                this._geoCountries = {
+                    features: [],
+                    bbox: <any>{},
+                    crs: <any>{},
+                    type: ''
+                };
                 this._positions = [];
+                this._ratio = 1;
                 this._projection = new projection(this._d3, projectionType.Orthographic, 1, 1);
                 this._pathGenerator = (<d3.geo.Path>this._d3.geo.path()).projection(this._projection.projection());
                 this.setSize(c);
@@ -65,37 +73,35 @@ module LeDragon.Framework.Map {
         private setSize(container: d3.Selection<any>): void {
             var width = (<any>container.node()).clientWidth;
             var height;
-            this._logger.debugFormat(`clienwidth: ${width}, clientHeight:${height}`);
-            var ratio = 4 / 3;
             if (!width) {
-                width = height * ratio;
+                width = height * this._ratio;
             } else if (!height) {
-                height = width / ratio;
+                height = width / this._ratio;
             }
 
             this.width = width;
             this.height = height;
-            this._logger.debugFormat(`width: ${width}, height:${height}`);
             container.select('svg').attr({
                 'width': width,
                 'height': height
             });
             this._logger.debugFormat(`width: ${width}, height:${height}`);
             this._projection.resize(width, height);
-            if (this._countries) {
-                var dataSelection = this.selectCountries();
-                this.updateCountries(dataSelection);
-            }
-            if (this._positions) {
-                this.updatePositions(this.selectPositions());
-            }
+            this._pathGenerator = (<d3.geo.Path>this._d3.geo.path()).projection(this._projection.projection());
+            this.updateAll();
+            
+            // var dataSelection = this.selectCountries();
+            // this.updateCountries(dataSelection);
+            // if (this._positions) {
+            //     this.updatePositions(this.selectPositions());
+            // }
         }
 
         drawCountries(countries: TopoJSON.TopoJSONObject): void {
             this.handle(
                 () => {
                     this._logger.debugFormat(`Drawing countries.`);
-                    this._countries = countries;
+                    // this._countries = countries;
                     this._geoCountries = topojson.feature(countries, countries.objects.countries);
 
                     var dataSelection = this.selectCountries();
@@ -220,6 +226,18 @@ module LeDragon.Framework.Map {
                 .center(0, 0);
             var dataSelection = this.selectCountries();
             this.updateCountries(dataSelection);
+        }
+
+        type(value: projectionType) {
+            this._projection.projectionType(value);
+
+        }
+
+        private updateAll() {
+            // if (this._countries) {
+            this.updateCountries(this.selectCountries());
+            // }
+            this.updatePositions(this.selectPositions());
         }
 
         private getCentering(d, pathGenerator: d3.geo.Path) {
