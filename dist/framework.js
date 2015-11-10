@@ -25,6 +25,7 @@ var LeDragon;
                     this._d3 = _d3;
                     this._width = width;
                     this._height = height;
+                    this._type = type;
                     switch (type) {
                         case Map.projectionType.Mercator:
                             this._projection = this._d3.geo.mercator()
@@ -43,8 +44,40 @@ var LeDragon;
                             break;
                     }
                 }
+                projection.prototype.resize = function (width, height) {
+                    this._width = width;
+                    this._height = height;
+                    this._projection
+                        .translate([width / 2, height / 2]);
+                    switch (this._type) {
+                        case Map.projectionType.Mercator:
+                            this._projection.scale(width / 8);
+                            break;
+                        case Map.projectionType.Orthographic:
+                            this._projection.scale(width / 3);
+                            break;
+                        default:
+                            throw new Error('Unknown projection type');
+                            break;
+                    }
+                };
+                projection.prototype.projectionType = function (value) {
+                    if (arguments) {
+                        this._type = value;
+                        return this;
+                    }
+                    return this._type;
+                };
                 projection.prototype.projection = function () {
                     return this._projection;
+                };
+                projection.prototype.center = function (latitude, longitude) {
+                    this._projection.center([latitude, longitude]);
+                    return this;
+                };
+                projection.prototype.scale = function (value) {
+                    this._projection.scale(value);
+                    return this;
                 };
                 return projection;
             })();
@@ -119,8 +152,8 @@ var LeDragon;
         (function (Map) {
             var position = Map.Models.position;
             var map = (function () {
-                function map(container, logger, _d3) {
-                    this.logger = logger;
+                function map(container, _logger, _d3) {
+                    this._logger = _logger;
                     this._d3 = _d3;
                     this.init(container);
                 }
@@ -128,10 +161,6 @@ var LeDragon;
                     var _this = this;
                     this.handle(function () {
                         var c = _this._d3.select(container);
-                        var width = c.node().clientWidth;
-                        var height = c.node().clientHeight;
-                        _this.width = width;
-                        _this.height = height;
                         _this._group = c
                             .append('svg')
                             .append('g')
@@ -143,24 +172,35 @@ var LeDragon;
                         _this._positionsGroup = _this._group.append('g')
                             .classed('positions', true);
                         _this._positions = [];
+                        _this._projection = new Map.projection(_this._d3, Map.projectionType.Orthographic, 1, 1);
+                        _this._pathGenerator = _this._d3.geo.path().projection(_this._projection.projection());
                         _this.setSize(c);
-                        _this._d3.select(window).on('resize', function (d, i) {
+                        _this._d3.select(window)
+                            .on('resize', function (d, i) {
                             _this.setSize(c);
                         });
                     }, 'Initialization failed');
                 };
                 map.prototype.setSize = function (container) {
                     var width = container.node().clientWidth;
-                    var height = container.node().clientHeight;
+                    var height;
+                    this._logger.debugFormat("clienwidth: " + width + ", clientHeight:" + height);
+                    var ratio = 4 / 3;
+                    if (!width) {
+                        width = height * ratio;
+                    }
+                    else if (!height) {
+                        height = width / ratio;
+                    }
+                    this.width = width;
+                    this.height = height;
+                    this._logger.debugFormat("width: " + width + ", height:" + height);
                     container.select('svg').attr({
                         'width': width,
                         'height': height
                     });
-                    this.logger.debugFormat("width: " + width + ", height:" + height);
-                    this._projection = new Map.projection(this._d3, Map.projectionType.Orthographic, width, height)
-                        .projection();
-                    // .scale(this._scale?this._scale:width/2);
-                    this._pathGenerator = this._d3.geo.path().projection(this._projection);
+                    this._logger.debugFormat("width: " + width + ", height:" + height);
+                    this._projection.resize(width, height);
                     if (this._countries) {
                         var dataSelection = this.selectCountries();
                         this.updateCountries(dataSelection);
@@ -172,14 +212,14 @@ var LeDragon;
                 map.prototype.drawCountries = function (countries) {
                     var _this = this;
                     this.handle(function () {
-                        _this.logger.debugFormat("Drawing countries.");
+                        _this._logger.debugFormat("Drawing countries.");
                         _this._countries = countries;
                         _this._geoCountries = topojson.feature(countries, countries.objects.countries);
                         var dataSelection = _this.selectCountries();
                         _this.appendCountries(dataSelection);
                         _this.updateCountries(dataSelection);
                         _this.deleteCountries(dataSelection);
-                        _this.logger.debugFormat('Countries drawn.');
+                        _this._logger.debugFormat('Countries drawn.');
                     }, 'Drawing of map failed.');
                 };
                 map.prototype.selectCountries = function () {
@@ -207,7 +247,7 @@ var LeDragon;
                 };
                 map.prototype.drawStates = function (states, color) {
                     var _this = this;
-                    this.logger.debugFormat(states);
+                    this._logger.debugFormat(states);
                     var selection = this._statesGroup
                         .selectAll('path')
                         .data(states);
@@ -222,7 +262,7 @@ var LeDragon;
                 map.prototype.addPosition = function (longitude, latitude, color) {
                     var _this = this;
                     this.handle(function () {
-                        _this.logger.debugFormat("Adding position (" + longitude + ", " + latitude + ").");
+                        _this._logger.debugFormat("Adding position (" + longitude + ", " + latitude + ").");
                         var p = new position(longitude, latitude);
                         p.color = color;
                         _this._positions.push(p);
@@ -233,7 +273,7 @@ var LeDragon;
                             'r': 2
                         });
                         _this.updatePositions(dataSelection);
-                        _this.logger.debugFormat('Position added.');
+                        _this._logger.debugFormat('Position added.');
                     }, 'Addition of position failed');
                 };
                 map.prototype.selectPositions = function () {
@@ -242,11 +282,11 @@ var LeDragon;
                     return dataSelection;
                 };
                 map.prototype.updatePositions = function (selection) {
-                    var _this = this;
+                    var d3Projection = this._projection.projection();
                     selection
                         .attr({
-                        'cx': function (d) { return _this._projection([d.longitude, d.latitude])[0]; },
-                        'cy': function (d) { return _this._projection([d.longitude, d.latitude])[1]; },
+                        'cx': function (d) { return d3Projection([d.longitude, d.latitude])[0]; },
+                        'cy': function (d) { return d3Projection([d.longitude, d.latitude])[1]; },
                         'r': 2
                     })
                         .style({
@@ -257,7 +297,9 @@ var LeDragon;
                     var _this = this;
                     this.handle(function () {
                         _this._scale = 8000;
-                        _this._projection.center([longitude, latitude]).scale(_this._scale);
+                        _this._projection.projection()
+                            .center([longitude, latitude])
+                            .scale(_this._scale);
                         _this._countriesGroup
                             .selectAll('path')
                             .data(_this._geoCountries.features)
@@ -272,11 +314,18 @@ var LeDragon;
                 map.prototype.zoomOnCountry = function (countryName) {
                     var country = _.find(this._geoCountries.features, function (c) { return c.properties.name.toLowerCase() === countryName.toLowerCase(); });
                     if (!country) {
-                        this.logger.errorFormat("No country with name " + countryName + " found.");
+                        this._logger.errorFormat("No country with name " + countryName + " found.");
                     }
                     else {
                         var c = this.getCentering(country, this._pathGenerator);
                     }
+                };
+                map.prototype.reset = function () {
+                    this._projection
+                        .scale(200)
+                        .center(0, 0);
+                    var dataSelection = this.selectCountries();
+                    this.updateCountries(dataSelection);
                 };
                 map.prototype.getCentering = function (d, pathGenerator) {
                     var bounds = pathGenerator.bounds(d);
@@ -296,9 +345,9 @@ var LeDragon;
                         method();
                     }
                     catch (e) {
-                        this.logger.errorFormat(message);
-                        this.logger.errorFormat(e.message);
-                        this.logger.errorFormat(e.stack);
+                        this._logger.errorFormat(message);
+                        this._logger.errorFormat(e.message);
+                        this._logger.errorFormat(e.stack);
                     }
                 };
                 return map;

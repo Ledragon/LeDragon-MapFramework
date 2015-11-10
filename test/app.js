@@ -6,24 +6,17 @@ try {
     var reader = new LeDragon.Framework.Map.Services.countriesReaderService(logger, d3);
     reader.get110m()
         .then(function (countries) {
-        map.drawCountries(countries);
-        map.addPosition(5, 50);
-        map.addPosition(-112, 37, 'red');
-    })
+            map.drawCountries(countries);
+            map.addPosition(5, 50);
+            map.addPosition(-112, 37, 'red');
+        })
         .catch(function (error) {
-        console.log(error);
-    });
+            console.log(error);
+        });
 
-    reader.getStates10m('FRA').then(function(result){
+    reader.getStates10m('FRA').then(function (result) {
         console.log(result.length);
     });
-    //                    window.setTimeout(function() {
-    //                        map.centerOnPosition(5, 50);
-    //                        //window.setTimeout(function() {
-    //                        //    map.centerOnPosition(-112, 37);
-    //                        //},2000);
-    //                    },2000);
-    //});
 } catch (e) {
     logger.errorFormat(e);
 }
@@ -37,5 +30,9 @@ function zoomOnBelgium() {
 }
 
 function drawStates() {
-    
+
+}
+
+function reset() {
+    map.reset();
 }
