@@ -4,6 +4,7 @@
 /// <reference path="../topojson.d.ts" />
 /// <reference path="../models/position.ts" />
 /// <reference path="../utilities/logger.ts" />
+/// <reference path="../utilities/getNameExtension.ts" />
 /// <reference path="projection.ts" />
 /// <reference path="projectionType.ts" />
 module LeDragon.Framework.Map {
@@ -15,7 +16,7 @@ module LeDragon.Framework.Map {
         drawStates: (states: any, color?: string) => void;
     }
 
-    export class map implements IworldMap {
+    export class map extends Utilities.Extensions.getNameObject implements IworldMap {
         private _group: d3.Selection<any>;
         private _countriesGroup: d3.Selection<any>;
         private _positionsGroup: d3.Selection<any>;
@@ -35,7 +36,8 @@ module LeDragon.Framework.Map {
         private _ratio: number;
 
         constructor(container: any, private _logger: Utilities.Ilogger, private _d3: typeof d3) {
-            this.init(container)
+            super();
+            this.init(container);
         }
 
         private init(container) {

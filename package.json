@@ -1,7 +1,7 @@
 {
   "name": "LeDragon-MapFramework",
   "version": "0.0.0",
-  "description": "A framework to create maps from in JavaScript",
+  "description": "A framework to create maps from GeoJSON data in JavaScript",
   "main": "src\\LeDragon-MapFramework.js",
   "directories": {
     "test": "test"
@@ -25,6 +25,7 @@
     "karma": "^0.12.32",
     "karma-mocha": "^0.1.10",
     "mocha": "^2.2.5",
+    "tsd": "^0.6.5",
     "typescript": "^1.6.2"
   }
 }

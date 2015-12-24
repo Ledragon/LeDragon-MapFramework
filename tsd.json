@@ -9,13 +9,22 @@
       "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
     },
     "q/Q.d.ts": {
-      "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
+      "commit": "4c41545030eba44b27ce7209112dbf862f6b1d78"
     },
     "lodash/lodash.d.ts": {
       "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
     },
     "geojson/geojson.d.ts": {
       "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
+    },
+    "gulp/gulp.d.ts": {
+      "commit": "4c41545030eba44b27ce7209112dbf862f6b1d78"
+    },
+    "node/node.d.ts": {
+      "commit": "4c41545030eba44b27ce7209112dbf862f6b1d78"
+    },
+    "orchestrator/orchestrator.d.ts": {
+      "commit": "4c41545030eba44b27ce7209112dbf862f6b1d78"
     }
   }
 }

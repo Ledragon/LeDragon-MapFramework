@@ -40,10 +40,6 @@ gulp.task('build-less', function () {
         .pipe(gulp.dest('./dist/'));
 });
 
-gulp.task('watch', ['watch-typescript', 'watch-less', 'browser-sync'], function () {
-
-});
-
 gulp.task('watch-typescript', function () {
     gulp.watch(typescriptFiles, ['build-typescript']);
 });
@@ -59,6 +55,10 @@ gulp.task('browser-sync', function () {
         port: 4000,
         files: ['./dist/*', './test/index-test.html']
     });
+});
+
+gulp.task('watch', ['watch-typescript', 'watch-less', 'browser-sync'], function () {
+
 });
 
 gulp.task('9GaggerLocator-copy', function () {

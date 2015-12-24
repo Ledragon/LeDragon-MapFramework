@@ -6,8 +6,6 @@ module LeDragon.Framework.Map.Services {
 		read: (fileName: string) => Q.IPromise<any>;
 	}
 
-
-
 	export class readerService implements IreaderService {
 		constructor(private logger: Utilities.Ilogger, private d3:any) {
 

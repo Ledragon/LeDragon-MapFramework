@@ -49,6 +49,33 @@ var LeDragon;
         })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
+/// <reference path="logger.ts" />
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Utilities;
+        (function (Utilities) {
+            var Extensions;
+            (function (Extensions) {
+                var getNameObject = (function () {
+                    function getNameObject() {
+                    }
+                    getNameObject.prototype.getName = function () {
+                        var funcNameRegex = /function (.{1,})\(/;
+                        var results = (funcNameRegex).exec((this).constructor.toString());
+                        return (results && results.length > 1) ? results[1] : "";
+                    };
+                    getNameObject.prototype.logger = function () {
+                        return new Utilities.logger(con);
+                    };
+                    return getNameObject;
+                })();
+                Extensions.getNameObject = getNameObject;
+            })(Extensions = Utilities.Extensions || (Utilities.Extensions = {}));
+        })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
 var LeDragon;
 (function (LeDragon) {
     var Framework;
@@ -150,12 +177,18 @@ var LeDragon;
         })(Map = Framework.Map || (Framework.Map = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 /// <reference path="../../typings/d3/d3.d.ts" />
 /// <reference path="../../typings/lodash/lodash.d.ts" />
 /// <reference path="../../typings/geojson/geojson.d.ts" />
 /// <reference path="../topojson.d.ts" />
 /// <reference path="../models/position.ts" />
 /// <reference path="../utilities/logger.ts" />
+/// <reference path="../utilities/getNameExtension.ts" />
 /// <reference path="projection.ts" />
 /// <reference path="projectionType.ts" />
 var LeDragon;
@@ -165,8 +198,10 @@ var LeDragon;
         var Map;
         (function (Map) {
             var position = Map.Models.position;
-            var map = (function () {
+            var map = (function (_super) {
+                __extends(map, _super);
                 function map(container, _logger, _d3) {
+                    _super.call(this);
                     this._logger = _logger;
                     this._d3 = _d3;
                     this.init(container);
@@ -436,7 +471,7 @@ var LeDragon;
                     }
                 };
                 return map;
-            })();
+            })(Framework.Utilities.Extensions.getNameObject);
             Map.map = map;
         })(Map = Framework.Map || (Framework.Map = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
