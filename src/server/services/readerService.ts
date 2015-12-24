@@ -1,6 +1,3 @@
-/// <reference path="../../typings/d3/d3.d.ts"/>
-/// <reference path="../../typings/q/Q.d.ts"/>
-/// <reference path="../utilities/logger.ts"/>
 module LeDragon.Framework.Map.Services {
 	export interface IreaderService {
 		read: (fileName: string) => Q.IPromise<any>;

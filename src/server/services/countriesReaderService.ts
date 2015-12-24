@@ -1,10 +1,9 @@
-/// <reference path="../../typings/d3/d3.d.ts"/>
-/// <reference path="../../typings/q/Q.d.ts"/>
-/// <reference path="../../typings/lodash/lodash.d.ts"/>
-/// <reference path="../../typings/geojson/geojson.d.ts"/>
-/// <reference path="../topojson.d.ts"/>
+/// <reference path="../../../typings/d3/d3.d.ts" />
+/// <reference path="../../../typings/Q/Q.d.ts" />
+/// <reference path="../../../typings/geojson/geojson.d.ts" />
+/// <reference path="../../models/topojson.d.ts" />
+/// <reference path="../../shared/utilities/logger.ts" />
 /// <reference path="./readerService.ts"/>
-/// <reference path="../models/country.d.ts"/>
 module LeDragon.Framework.Map.Services {
 	import topoJsonObject = TopoJSON.TopoJSONObject;
 	export interface IcountriesReader {
@@ -18,8 +17,8 @@ module LeDragon.Framework.Map.Services {
 	}
 
 	export class countriesReaderService extends readerService implements IcountriesReader {
-		private _110m = '/src/data/countries-110m.topo.json';
-		private _states10mPath = '/src/data/states-provinces-10m.topo.json';
+		private _110m = '/src/server/data/countries-110m.topo.json';
+		private _states10mPath = '/src/server/data/states-provinces-10m.topo.json';
 		private _states10m: GeoJSON.FeatureCollection;
 
 		constructor(private _logger: Utilities.Ilogger, private _d3: any) {

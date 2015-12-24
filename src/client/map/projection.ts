@@ -1,4 +1,3 @@
-/// <reference path="../../typings/d3/d3.d.ts" />
 /// <reference path="projectionType.ts" />
 module LeDragon.Framework.Map {
     export interface Iprojection {

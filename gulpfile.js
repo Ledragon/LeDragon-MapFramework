@@ -4,10 +4,34 @@ var $ = require('gulp-load-plugins')({
 });
 var browserSync = require('browser-sync');
 
+var config = require('./gulp.config');
+
 var typescriptFiles = './src/**/*.ts';
-var lessFiles = './src/content/*.less';
+var lessFiles = config.lessFiles;
 var dist = './dist/';
 var distFiles = dist + '**/*.*';
+
+gulp.task('build-client-typescript', function () {
+ return gulp.src(config.typescript.client)
+        .pipe($.sourcemaps.init())
+        .pipe($.typescript({
+            target: 'ES5',
+            out: 'framework.client.js'
+        }))
+        .pipe($.sourcemaps.write('.'))
+        .pipe(gulp.dest('./dist/'));
+});
+
+gulp.task('build-server-typescript', function () {
+ return gulp.src(config.typescript.server)
+        .pipe($.sourcemaps.init())
+        .pipe($.typescript({
+            target: 'ES5',
+            out: 'framework.server.js'
+        }))
+        .pipe($.sourcemaps.write('.'))
+        .pipe(gulp.dest('./dist/'));
+});
 
 gulp.task('build-typescript', function () {
     return gulp.src([typescriptFiles,
@@ -25,7 +49,7 @@ gulp.task('build-typescript', function () {
 
 gulp.task('build-services', function () {
     return gulp.src([
-        './src/services/**/*.ts',
+        './src/server/services/**/*.ts',
         './typings/**/*.d.ts'])
         .pipe($.typescript({
             target: 'ES5',

@@ -1,4 +1,3 @@
-/// <reference path="../typings/d3/d3.d.ts"/>
 var logger = new LeDragon.Framework.Utilities.logger(console);
 try {
     var map = new LeDragon.Framework.Map.map('#test', logger, d3);
