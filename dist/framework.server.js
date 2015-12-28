@@ -186,32 +186,5 @@ var LeDragon;
         })(Map = Framework.Map || (Framework.Map = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
-/// <reference path="logger.ts" />
-var LeDragon;
-(function (LeDragon) {
-    var Framework;
-    (function (Framework) {
-        var Utilities;
-        (function (Utilities) {
-            var Extensions;
-            (function (Extensions) {
-                var getNameObject = (function () {
-                    function getNameObject() {
-                    }
-                    getNameObject.prototype.getName = function () {
-                        var funcNameRegex = /function (.{1,})\(/;
-                        var results = (funcNameRegex).exec((this).constructor.toString());
-                        return (results && results.length > 1) ? results[1] : "";
-                    };
-                    getNameObject.prototype.logger = function () {
-                        return new Utilities.logger(console, this.getName());
-                    };
-                    return getNameObject;
-                })();
-                Extensions.getNameObject = getNameObject;
-            })(Extensions = Utilities.Extensions || (Utilities.Extensions = {}));
-        })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
-    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
-})(LeDragon || (LeDragon = {}));
 
 //# sourceMappingURL=framework.server.js.map

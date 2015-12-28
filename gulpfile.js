@@ -12,7 +12,6 @@ var lessFiles = config.lessFiles;
 var dist = './dist/';
 var distFiles = dist + '**/*.*';
 
-
 gulp.task('bower', function () {
     gulp.src('./test/index-test.html')
         .pipe(wiredep())
@@ -20,7 +19,7 @@ gulp.task('bower', function () {
 });
 
 gulp.task('build-client-typescript', function () {
-    return gulp.src(config.typescript.client)
+    return gulp.src(config.typescript.client, {base:'src'})
         .pipe($.sourcemaps.init())
         .pipe($.typescript({
             target: 'ES5',
@@ -31,39 +30,13 @@ gulp.task('build-client-typescript', function () {
 });
 
 gulp.task('build-server-typescript', function () {
-    return gulp.src(config.typescript.server)
+    return gulp.src(config.typescript.server, {base:'src'})
         .pipe($.sourcemaps.init())
         .pipe($.typescript({
             target: 'ES5',
-            out: 'framework.server.js',
-            'sourceMap': 'true'
+            out: 'framework.server.js'
         }))
         .pipe($.sourcemaps.write('.'))
-        .pipe(gulp.dest('./dist/'));
-});
-
-gulp.task('build-typescript', function () {
-    return gulp.src([typescriptFiles,
-        //TMP exclude services for the client side library, they are only required for a server side library that can access the file system
-        '!' + './src/services/**/*.ts',
-        './typings/**/*.d.ts'])
-        .pipe($.sourcemaps.init())
-        .pipe($.typescript({
-            target: 'ES5',
-            out: 'framework.js'
-        }))
-        .pipe($.sourcemaps.write('.'))
-        .pipe(gulp.dest('./dist/'));
-});
-
-gulp.task('build-services', function () {
-    return gulp.src([
-        './src/server/services/**/*.ts',
-        './typings/**/*.d.ts'])
-        .pipe($.typescript({
-            target: 'ES5',
-            out: 'services.js'
-        }))
         .pipe(gulp.dest('./dist/'));
 });
 
@@ -86,7 +59,7 @@ gulp.task('browser-sync', function () {
         server: './',
         index: 'test/index-test.html',
         port: 4000,
-        files: ['./dist/*', './test/index-test.html']
+        files: ['./dist/*', './test/index-test.html', './test/app.js']
     });
 });
 
