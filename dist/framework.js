@@ -118,13 +118,82 @@ var LeDragon;
         })(Map = Framework.Map || (Framework.Map = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Utilities;
+        (function (Utilities) {
+            var logger = (function () {
+                function logger(console) {
+                    this.console = console;
+                }
+                logger.prototype.debugFormat = function (message) {
+                    this.console.debug(this.format('DEBUG', message));
+                };
+                logger.prototype.infoFormat = function (message) {
+                    this.console.info(this.format('INFO', message));
+                };
+                logger.prototype.warningFormat = function (message) {
+                    this.console.warn(message);
+                };
+                logger.prototype.errorFormat = function (message) {
+                    this.console.error(message);
+                };
+                logger.prototype.fatalFormat = function (message) {
+                    this.console.error(message);
+                };
+                logger.prototype.format = function (level, message) {
+                    var now = new Date();
+                    var formatted = "[" + now + "] - " + level + " - " + message;
+                    return formatted;
+                };
+                return logger;
+            })();
+            Utilities.logger = logger;
+        })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
+/// <reference path="logger.ts" />
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Utilities;
+        (function (Utilities) {
+            var Extensions;
+            (function (Extensions) {
+                var getNameObject = (function () {
+                    function getNameObject() {
+                    }
+                    getNameObject.prototype.getName = function () {
+                        var funcNameRegex = /function (.{1,})\(/;
+                        var results = (funcNameRegex).exec((this).constructor.toString());
+                        return (results && results.length > 1) ? results[1] : "";
+                    };
+                    getNameObject.prototype.logger = function () {
+                        return new Utilities.logger(console);
+                    };
+                    return getNameObject;
+                })();
+                Extensions.getNameObject = getNameObject;
+            })(Extensions = Utilities.Extensions || (Utilities.Extensions = {}));
+        })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
+/// <reference path="../../../typings/d3/d3.d.ts" />
+/// <reference path="../../../typings/geojson/geojson.d.ts" />
+/// <reference path="../../../typings/lodash/lodash.d.ts" />
 /// <reference path="projection.ts" />
 /// <reference path="projectionType.ts" />
+/// <reference path="../../models/position.ts" />
+/// <reference path="../../models/topojson.d.ts" />
+/// <reference path="../../shared/utilities/getNameExtension.ts" />
 var LeDragon;
 (function (LeDragon) {
     var Framework;
@@ -447,6 +516,11 @@ var LeDragon;
         })(Map = Framework.Map || (Framework.Map = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
+/// <reference path="../../../typings/d3/d3.d.ts" />
+/// <reference path="../../../typings/Q/Q.d.ts" />
+/// <reference path="../../../typings/geojson/geojson.d.ts" />
+/// <reference path="../../models/topojson.d.ts" />
+/// <reference path="../../shared/utilities/logger.ts" />
 /// <reference path="./readerService.ts"/>
 var LeDragon;
 (function (LeDragon) {
@@ -462,7 +536,7 @@ var LeDragon;
                         _super.call(this, _logger, _d3);
                         this._logger = _logger;
                         this._d3 = _d3;
-                        this._110m = '/src/data/countries-110m.topo.json';
+                        this._110m = '/src/server/data/countries-110m.topo.json';
                         this._states10mPath = '/src/server/data/states-provinces-10m.topo.json';
                     }
                     countriesReaderService.prototype.get110m = function () {
@@ -521,64 +595,6 @@ var LeDragon;
                 Services.countriesReaderService = countriesReaderService;
             })(Services = Map.Services || (Map.Services = {}));
         })(Map = Framework.Map || (Framework.Map = {}));
-    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
-})(LeDragon || (LeDragon = {}));
-var LeDragon;
-(function (LeDragon) {
-    var Framework;
-    (function (Framework) {
-        var Utilities;
-        (function (Utilities) {
-            var logger = (function () {
-                function logger(console) {
-                    this.console = console;
-                }
-                logger.prototype.debugFormat = function (message) {
-                    this.console.debug(message);
-                };
-                logger.prototype.infoFormat = function (message) {
-                    this.console.info(message);
-                };
-                logger.prototype.warningFormat = function (message) {
-                    this.console.warn(message);
-                };
-                logger.prototype.errorFormat = function (message) {
-                    this.console.error(message);
-                };
-                logger.prototype.fatalFormat = function (message) {
-                    this.console.error(message);
-                };
-                return logger;
-            })();
-            Utilities.logger = logger;
-        })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
-    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
-})(LeDragon || (LeDragon = {}));
-/// <reference path="logger.ts" />
-var LeDragon;
-(function (LeDragon) {
-    var Framework;
-    (function (Framework) {
-        var Utilities;
-        (function (Utilities) {
-            var Extensions;
-            (function (Extensions) {
-                var getNameObject = (function () {
-                    function getNameObject() {
-                    }
-                    getNameObject.prototype.getName = function () {
-                        var funcNameRegex = /function (.{1,})\(/;
-                        var results = (funcNameRegex).exec((this).constructor.toString());
-                        return (results && results.length > 1) ? results[1] : "";
-                    };
-                    getNameObject.prototype.logger = function () {
-                        return new Utilities.logger(console);
-                    };
-                    return getNameObject;
-                })();
-                Extensions.getNameObject = getNameObject;
-            })(Extensions = Utilities.Extensions || (Utilities.Extensions = {}));
-        })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
 

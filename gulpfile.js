@@ -1,4 +1,5 @@
 var gulp = require('gulp');
+var wiredep = require('wiredep').stream;
 var $ = require('gulp-load-plugins')({
     lazy: true
 });
@@ -11,8 +12,15 @@ var lessFiles = config.lessFiles;
 var dist = './dist/';
 var distFiles = dist + '**/*.*';
 
+
+gulp.task('bower', function () {
+    gulp.src('./test/index-test.html')
+        .pipe(wiredep())
+        .pipe(gulp.dest('./test'));
+});
+
 gulp.task('build-client-typescript', function () {
- return gulp.src(config.typescript.client)
+    return gulp.src(config.typescript.client)
         .pipe($.sourcemaps.init())
         .pipe($.typescript({
             target: 'ES5',
@@ -23,11 +31,12 @@ gulp.task('build-client-typescript', function () {
 });
 
 gulp.task('build-server-typescript', function () {
- return gulp.src(config.typescript.server)
+    return gulp.src(config.typescript.server)
         .pipe($.sourcemaps.init())
         .pipe($.typescript({
             target: 'ES5',
-            out: 'framework.server.js'
+            out: 'framework.server.js',
+            'sourceMap': 'true'
         }))
         .pipe($.sourcemaps.write('.'))
         .pipe(gulp.dest('./dist/'));
@@ -65,7 +74,7 @@ gulp.task('build-less', function () {
 });
 
 gulp.task('watch-typescript', function () {
-    gulp.watch(typescriptFiles, ['build-typescript']);
+    gulp.watch(typescriptFiles, ['build-client-typescript', 'build-server-typescript']);
 });
 
 gulp.task('watch-less', function () {
@@ -82,6 +91,10 @@ gulp.task('browser-sync', function () {
 });
 
 gulp.task('watch', ['watch-typescript', 'watch-less', 'browser-sync'], function () {
+
+});
+
+gulp.task('serve', ['build-client-typescript', 'build-server-typescript', 'build-less', 'watch'], function () {
 
 });
 

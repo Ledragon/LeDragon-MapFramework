@@ -3,6 +3,7 @@
 /// <reference path="../../../typings/geojson/geojson.d.ts" />
 /// <reference path="../../models/topojson.d.ts" />
 /// <reference path="../../shared/utilities/logger.ts" />
+/// <reference path="../../shared/utilities/loggerFactory.ts" />
 /// <reference path="./readerService.ts"/>
 module LeDragon.Framework.Map.Services {
 	import topoJsonObject = TopoJSON.TopoJSONObject;
@@ -20,9 +21,10 @@ module LeDragon.Framework.Map.Services {
 		private _110m = '/src/server/data/countries-110m.topo.json';
 		private _states10mPath = '/src/server/data/states-provinces-10m.topo.json';
 		private _states10m: GeoJSON.FeatureCollection;
-
-		constructor(private _logger: Utilities.Ilogger, private _d3: any) {
-			super(_logger, _d3);
+        private _logger: Utilities.Ilogger;
+		constructor(private _d3: any) {
+            super(_d3);
+            this._logger = Utilities.loggerFactory.getLogger('countriesReaderService');
 		}
 
 		get110m(): Q.IPromise<topoJsonObject> {

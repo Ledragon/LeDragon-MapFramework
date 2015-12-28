@@ -25,6 +25,12 @@
     },
     "orchestrator/orchestrator.d.ts": {
       "commit": "4c41545030eba44b27ce7209112dbf862f6b1d78"
+    },
+    "moment/moment.d.ts": {
+      "commit": "dc9dabe74a5be62613b17a3605309783a12ff28a"
+    },
+    "moment/moment-node.d.ts": {
+      "commit": "dc9dabe74a5be62613b17a3605309783a12ff28a"
     }
   }
 }

@@ -1,7 +1,7 @@
-var logger = new LeDragon.Framework.Utilities.logger(console);
+var logger = LeDragon.Framework.Utilities.loggerFactory.getLogger('app');
 try {
-    var map = new LeDragon.Framework.Map.map('#test', logger, d3);
-    var reader = new LeDragon.Framework.Map.Services.countriesReaderService(logger, d3);
+    var map = new LeDragon.Framework.Map.map('#test', d3);
+    var reader = new LeDragon.Framework.Map.Services.countriesReaderService(d3);
     reader.get110m()
         .then(function (countries) {
             map.drawCountries(countries);
@@ -9,12 +9,12 @@ try {
             map.addPosition(-112, 37, 'red');
         })
         .catch(function (error) {
-            console.log(error);
+            logger.errorFormat(error);
         });
 
     reader.getStates10m('FRA')
         .then(function (result) {
-            console.log(result.length);
+            logger.infoFormat(result.length);
             // var franceMap = new LeDragon.Framework.Map.map('#france', logger, d3);
             // franceMap.drawStates(result);
         });

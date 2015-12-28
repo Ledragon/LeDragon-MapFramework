@@ -26,6 +26,7 @@
     "karma-mocha": "^0.1.10",
     "mocha": "^2.2.5",
     "tsd": "^0.6.5",
-    "typescript": "^1.6.2"
+    "typescript": "^1.6.2",
+    "wiredep": "^3.0.0"
   }
 }

@@ -6,6 +6,7 @@
 /// <reference path="../../models/position.ts" />
 /// <reference path="../../models/topojson.d.ts" />
 /// <reference path="../../shared/utilities/getNameExtension.ts" />
+/// <reference path="../../shared/utilities/loggerFactory.ts" />
 module LeDragon.Framework.Map {
     import position = Models.position;
     export interface IworldMap {
@@ -34,8 +35,11 @@ module LeDragon.Framework.Map {
         private height: number;
         private _ratio: number;
 
-        constructor(container: any, private _logger: Utilities.Ilogger, private _d3: typeof d3) {
+        private _logger: Utilities.Ilogger;
+        
+        constructor(container: any, private _d3: typeof d3) {
             super();
+            this._logger = Utilities.loggerFactory.getLogger('map');
             this.init(container);
         }
 

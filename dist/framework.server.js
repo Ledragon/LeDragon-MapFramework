@@ -1,3 +1,4 @@
+/// <reference path="../../../typings/tsd.d.ts" />
 var LeDragon;
 (function (LeDragon) {
     var Framework;
@@ -5,14 +6,15 @@ var LeDragon;
         var Utilities;
         (function (Utilities) {
             var logger = (function () {
-                function logger(console) {
+                function logger(console, _name) {
                     this.console = console;
+                    this._name = _name;
                 }
                 logger.prototype.debugFormat = function (message) {
-                    this.console.debug(message);
+                    this.console.debug(this.format('DEBUG', message));
                 };
                 logger.prototype.infoFormat = function (message) {
-                    this.console.info(message);
+                    this.console.info(this.format('INFO', message));
                 };
                 logger.prototype.warningFormat = function (message) {
                     this.console.warn(message);
@@ -23,12 +25,43 @@ var LeDragon;
                 logger.prototype.fatalFormat = function (message) {
                     this.console.error(message);
                 };
+                logger.prototype.format = function (level, message) {
+                    var now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+                    var formatted = "[" + now + "] - [" + this._name + "] - " + level + " - " + message;
+                    return formatted;
+                };
                 return logger;
             })();
             Utilities.logger = logger;
         })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
+/// <reference path="logger.ts" />
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Utilities;
+        (function (Utilities) {
+            var loggerFactory = (function () {
+                function loggerFactory() {
+                }
+                loggerFactory.getLogger = function (name) {
+                    var l = _.find(loggerFactory._loggerList, function (l) { return l.name === name; });
+                    if (!l) {
+                        l = { logger: new Utilities.logger(console, name), name: name };
+                        loggerFactory._loggerList.push(l);
+                    }
+                    return l.logger;
+                };
+                loggerFactory._loggerList = [];
+                return loggerFactory;
+            })();
+            Utilities.loggerFactory = loggerFactory;
+        })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
+/// <reference path="../../shared/utilities/loggerFactory.ts" />
 var LeDragon;
 (function (LeDragon) {
     var Framework;
@@ -38,9 +71,9 @@ var LeDragon;
             var Services;
             (function (Services) {
                 var readerService = (function () {
-                    function readerService(logger, d3) {
-                        this.logger = logger;
+                    function readerService(d3) {
                         this.d3 = d3;
+                        this.logger = LeDragon.Framework.Utilities.loggerFactory.getLogger('readerservice');
                     }
                     readerService.prototype.read = function (fileName) {
                         var _this = this;
@@ -76,6 +109,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 /// <reference path="../../../typings/geojson/geojson.d.ts" />
 /// <reference path="../../models/topojson.d.ts" />
 /// <reference path="../../shared/utilities/logger.ts" />
+/// <reference path="../../shared/utilities/loggerFactory.ts" />
 /// <reference path="./readerService.ts"/>
 var LeDragon;
 (function (LeDragon) {
@@ -87,12 +121,12 @@ var LeDragon;
             (function (Services) {
                 var countriesReaderService = (function (_super) {
                     __extends(countriesReaderService, _super);
-                    function countriesReaderService(_logger, _d3) {
-                        _super.call(this, _logger, _d3);
-                        this._logger = _logger;
+                    function countriesReaderService(_d3) {
+                        _super.call(this, _d3);
                         this._d3 = _d3;
                         this._110m = '/src/server/data/countries-110m.topo.json';
                         this._states10mPath = '/src/server/data/states-provinces-10m.topo.json';
+                        this._logger = Framework.Utilities.loggerFactory.getLogger('countriesReaderService');
                     }
                     countriesReaderService.prototype.get110m = function () {
                         return _super.prototype.read.call(this, this._110m);
@@ -150,6 +184,33 @@ var LeDragon;
                 Services.countriesReaderService = countriesReaderService;
             })(Services = Map.Services || (Map.Services = {}));
         })(Map = Framework.Map || (Framework.Map = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
+/// <reference path="logger.ts" />
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Utilities;
+        (function (Utilities) {
+            var Extensions;
+            (function (Extensions) {
+                var getNameObject = (function () {
+                    function getNameObject() {
+                    }
+                    getNameObject.prototype.getName = function () {
+                        var funcNameRegex = /function (.{1,})\(/;
+                        var results = (funcNameRegex).exec((this).constructor.toString());
+                        return (results && results.length > 1) ? results[1] : "";
+                    };
+                    getNameObject.prototype.logger = function () {
+                        return new Utilities.logger(console, this.getName());
+                    };
+                    return getNameObject;
+                })();
+                Extensions.getNameObject = getNameObject;
+            })(Extensions = Utilities.Extensions || (Utilities.Extensions = {}));
+        })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
 

@@ -8,7 +8,8 @@ module LeDragon.Framework.Utilities.Extensions {
         }
 
         logger(): Ilogger {
-            return new logger(console);
+            return new logger(console, this.getName());
         }
+        
     }
 }

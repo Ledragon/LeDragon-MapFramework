@@ -118,6 +118,7 @@ var LeDragon;
         })(Map = Framework.Map || (Framework.Map = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
+/// <reference path="../../../typings/tsd.d.ts" />
 var LeDragon;
 (function (LeDragon) {
     var Framework;
@@ -125,14 +126,15 @@ var LeDragon;
         var Utilities;
         (function (Utilities) {
             var logger = (function () {
-                function logger(console) {
+                function logger(console, _name) {
                     this.console = console;
+                    this._name = _name;
                 }
                 logger.prototype.debugFormat = function (message) {
-                    this.console.debug(message);
+                    this.console.debug(this.format('DEBUG', message));
                 };
                 logger.prototype.infoFormat = function (message) {
-                    this.console.info(message);
+                    this.console.info(this.format('INFO', message));
                 };
                 logger.prototype.warningFormat = function (message) {
                     this.console.warn(message);
@@ -142,6 +144,11 @@ var LeDragon;
                 };
                 logger.prototype.fatalFormat = function (message) {
                     this.console.error(message);
+                };
+                logger.prototype.format = function (level, message) {
+                    var now = moment().format('YYYY-MM-DD HH:mm:ss.SSS');
+                    var formatted = "[" + now + "] - [" + this._name + "] - " + level + " - " + message;
+                    return formatted;
                 };
                 return logger;
             })();
@@ -167,12 +174,37 @@ var LeDragon;
                         return (results && results.length > 1) ? results[1] : "";
                     };
                     getNameObject.prototype.logger = function () {
-                        return new Utilities.logger(console);
+                        return new Utilities.logger(console, this.getName());
                     };
                     return getNameObject;
                 })();
                 Extensions.getNameObject = getNameObject;
             })(Extensions = Utilities.Extensions || (Utilities.Extensions = {}));
+        })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
+/// <reference path="logger.ts" />
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Utilities;
+        (function (Utilities) {
+            var loggerFactory = (function () {
+                function loggerFactory() {
+                }
+                loggerFactory.getLogger = function (name) {
+                    var l = _.find(loggerFactory._loggerList, function (l) { return l.name === name; });
+                    if (!l) {
+                        l = { logger: new Utilities.logger(console, name), name: name };
+                        loggerFactory._loggerList.push(l);
+                    }
+                    return l.logger;
+                };
+                loggerFactory._loggerList = [];
+                return loggerFactory;
+            })();
+            Utilities.loggerFactory = loggerFactory;
         })(Utilities = Framework.Utilities || (Framework.Utilities = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
@@ -189,6 +221,7 @@ var __extends = (this && this.__extends) || function (d, b) {
 /// <reference path="../../models/position.ts" />
 /// <reference path="../../models/topojson.d.ts" />
 /// <reference path="../../shared/utilities/getNameExtension.ts" />
+/// <reference path="../../shared/utilities/loggerFactory.ts" />
 var LeDragon;
 (function (LeDragon) {
     var Framework;
@@ -198,10 +231,10 @@ var LeDragon;
             var position = Map.Models.position;
             var map = (function (_super) {
                 __extends(map, _super);
-                function map(container, _logger, _d3) {
+                function map(container, _d3) {
                     _super.call(this);
-                    this._logger = _logger;
                     this._d3 = _d3;
+                    this._logger = Framework.Utilities.loggerFactory.getLogger('map');
                     this.init(container);
                 }
                 map.prototype.init = function (container) {

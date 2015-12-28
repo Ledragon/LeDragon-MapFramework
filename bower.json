@@ -16,7 +16,8 @@
   "dependencies": {
     "d3": "~3.5.5",
     "topojson": "~1.6.19",
-    "lodash": "~3.9.0"
+    "lodash": "~3.9.0",
+    "moment": "~2.10.6"
   },
   "devDependencies": {
     "bootstrap": "~3.3.4",
