@@ -17,6 +17,7 @@ module LeDragon.Framework.Map {
     }
 
     export class map extends Utilities.Extensions.getNameObject implements IworldMap {
+        private _container: any;
         private _group: d3.Selection<any>;
         private _countriesGroup: d3.Selection<any>;
         private _positionsGroup: d3.Selection<any>;
@@ -36,7 +37,7 @@ module LeDragon.Framework.Map {
         private _ratio: number;
 
         private _logger: Utilities.Ilogger;
-        
+
         constructor(container: any, private _d3: typeof d3) {
             super();
             this._logger = Utilities.loggerFactory.getLogger('map');
@@ -46,6 +47,7 @@ module LeDragon.Framework.Map {
         private init(container) {
             this.handle(() => {
                 var c = this._d3.select(container);
+                this._container = c;
                 var svg = c
                     .append('svg');
                 var gradient = svg
@@ -100,7 +102,7 @@ module LeDragon.Framework.Map {
                 this.setSize(c);
 
                 (<d3.Selection<any>>this._d3.select(window))
-                    .on('resize', (d, i) => {
+                    .on('resize.' + c.attr('id'), (d, i) => {
                         this.setSize(c);
                     });
             }, 'Initialization failed');
@@ -108,12 +110,12 @@ module LeDragon.Framework.Map {
 
         private setSize(container: d3.Selection<any>): void {
             var width = (<any>container.node()).clientWidth;
-            var height;
-            if (!width) {
-                width = height * this._ratio;
-            } else if (!height) {
-                height = width / this._ratio;
-            }
+            var height = width / this._ratio;
+            // if (!width) {
+            //     width = height * this._ratio;
+            // } else if (!height) {
+            //     height = width / this._ratio;
+            // }
 
             this.width = width;
             this.height = height;
@@ -171,9 +173,9 @@ module LeDragon.Framework.Map {
                         .invert(mouse);
                     this._logger.debugFormat(coordinates);
                     this._projection.rotate([-coordinates[0], -coordinates[1], 0]);
-                        // .scale(centering.scale)
-                        // .translate(centering.translate)
-                        // .center(centering.center);
+                    // .scale(centering.scale)
+                    // .translate(centering.translate)
+                    // .center(centering.center);
                     this.updateAll();
                 });
         }
@@ -278,7 +280,7 @@ module LeDragon.Framework.Map {
 
         reset() {
             this._projection
-            // .scale(200)
+                // .scale(200)
                 .center(0, 0)
                 .rotate([0, 0, 0]);
             this.updateAll();
@@ -294,10 +296,20 @@ module LeDragon.Framework.Map {
 
         type(value: projectionType) {
             this._projection.projectionType(value);
-
+            this._pathGenerator = (<d3.geo.Path>this._d3.geo.path()).projection(this._projection.projection());
+            if (value === projectionType.Mercator) {
+                this._borderGroup.transition().style('visibility', 'hidden');
+                this._ratio = 16 / 9;
+            } else {
+                this._borderGroup.transition().style('visibility', 'visible');
+                this._ratio = 1;
+            }
+            this.updateAll();
+            this.setSize(this._container);
         }
 
         private updateAll() {
+            this._logger.debugFormat('Update all');
             // if (this._countries) {
             this.updateCountries(this.selectCountries());
             // }

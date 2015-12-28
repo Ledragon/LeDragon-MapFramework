@@ -241,6 +241,7 @@ var LeDragon;
                     var _this = this;
                     this.handle(function () {
                         var c = _this._d3.select(container);
+                        _this._container = c;
                         var svg = c
                             .append('svg');
                         var gradient = svg
@@ -291,20 +292,19 @@ var LeDragon;
                         _this._pathGenerator = _this._d3.geo.path().projection(_this._projection.projection());
                         _this.setSize(c);
                         _this._d3.select(window)
-                            .on('resize', function (d, i) {
+                            .on('resize.' + c.attr('id'), function (d, i) {
                             _this.setSize(c);
                         });
                     }, 'Initialization failed');
                 };
                 map.prototype.setSize = function (container) {
                     var width = container.node().clientWidth;
-                    var height;
-                    if (!width) {
-                        width = height * this._ratio;
-                    }
-                    else if (!height) {
-                        height = width / this._ratio;
-                    }
+                    var height = width / this._ratio;
+                    // if (!width) {
+                    //     width = height * this._ratio;
+                    // } else if (!height) {
+                    //     height = width / this._ratio;
+                    // }
                     this.width = width;
                     this.height = height;
                     container.select('svg').attr({
@@ -469,8 +469,20 @@ var LeDragon;
                 };
                 map.prototype.type = function (value) {
                     this._projection.projectionType(value);
+                    this._pathGenerator = this._d3.geo.path().projection(this._projection.projection());
+                    if (value === Map.projectionType.Mercator) {
+                        this._borderGroup.transition().style('visibility', 'hidden');
+                        this._ratio = 16 / 9;
+                    }
+                    else {
+                        this._borderGroup.transition().style('visibility', 'visible');
+                        this._ratio = 1;
+                    }
+                    this.updateAll();
+                    this.setSize(this._container);
                 };
                 map.prototype.updateAll = function () {
+                    this._logger.debugFormat('Update all');
                     // if (this._countries) {
                     this.updateCountries(this.selectCountries());
                     // }
