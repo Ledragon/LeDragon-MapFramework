@@ -15,29 +15,3 @@ try {
 } catch (e) {
     logger.errorFormat(e);
 }
-
-function center() {
-    mercator.centerOnPosition(5, 50);
-}
-
-function zoomOnBelgium() {
-    mercator.zoomOnCountry('belgium');
-}
-
-function drawStates() {
-
-}
-
-function reset() {
-    mercator.reset();
-}
-
-var x = 0;
-var y = 0;
-var z = 0;
-function rotate() {
-    x += 10;
-    y += 2;
-    z += 1;
-    mercator.rotate([x, y, z]);
-}
