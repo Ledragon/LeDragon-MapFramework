@@ -1,4 +1,4 @@
-﻿/// <reference path="../../../typings/tsd.d.ts" />
+﻿/// <reference path="../../typings/tsd.d.ts" />
 
 module LeDragon.Framework.Utilities {
     export interface Ilogger {
@@ -23,15 +23,15 @@ module LeDragon.Framework.Utilities {
         }
 
         warningFormat(message: string): void {
-            this.console.warn(message);
+            this.console.warn(this.format('WARN', message));
         }
 
         errorFormat(message: string): void {
-            this.console.error(message);
+            this.console.error(this.format('ERROR', message));
         }
 
         fatalFormat(message: string): void {
-            this.console.error(message);
+            this.console.error(this.format('FATAL', message));
         }
 
         private format(level: string, message: any): string {

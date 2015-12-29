@@ -1,4 +1,4 @@
-/// <reference path="../../shared/utilities/loggerFactory.ts" />
+/// <reference path="../utilities/loggerFactory.ts" />
 
 module LeDragon.Framework.Map.Services {
     export interface IreaderService {
