@@ -14,8 +14,23 @@ declare module TopoJSON {
     export interface TopoJSONObject {
         type: string;
         arcs?: Array<any>;
-        objects: any;
-        transform:any;
+        objects: { countries: countries };
+        transform: any;
+    }
+    export interface countries {
+        type: string,
+        geometries: Array<country>
+    }
+
+    export interface country {
+        type: string,
+        properties:
+        {
+            scalerank: number,
+            featurecla: string,
+            labelrank: number,
+            adm0_a3: string
+        }
     }
 
 }

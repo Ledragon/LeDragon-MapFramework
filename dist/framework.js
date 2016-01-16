@@ -4,26 +4,6 @@ var LeDragon;
     (function (Framework) {
         var Map;
         (function (Map) {
-            var Models;
-            (function (Models) {
-                var position = (function () {
-                    function position(longitude, latitude) {
-                        this.longitude = longitude;
-                        this.latitude = latitude;
-                    }
-                    return position;
-                })();
-                Models.position = position;
-            })(Models = Map.Models || (Map.Models = {}));
-        })(Map = Framework.Map || (Framework.Map = {}));
-    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
-})(LeDragon || (LeDragon = {}));
-var LeDragon;
-(function (LeDragon) {
-    var Framework;
-    (function (Framework) {
-        var Map;
-        (function (Map) {
             (function (projectionType) {
                 projectionType[projectionType["Mercator"] = 0] = "Mercator";
                 projectionType[projectionType["Orthographic"] = 1] = "Orthographic";
@@ -115,6 +95,26 @@ var LeDragon;
                 return projection;
             })();
             Map.projection = projection;
+        })(Map = Framework.Map || (Framework.Map = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Map;
+        (function (Map) {
+            var Models;
+            (function (Models) {
+                var position = (function () {
+                    function position(longitude, latitude) {
+                        this.longitude = longitude;
+                        this.latitude = latitude;
+                    }
+                    return position;
+                })();
+                Models.position = position;
+            })(Models = Map.Models || (Map.Models = {}));
         })(Map = Framework.Map || (Framework.Map = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
@@ -635,6 +635,54 @@ var LeDragon;
                     return countriesReaderService;
                 })(Services.readerService);
                 Services.countriesReaderService = countriesReaderService;
+            })(Services = Map.Services || (Map.Services = {}));
+        })(Map = Framework.Map || (Framework.Map = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
+/// <reference path="../../typings/tsd.d.ts" />
+/// <reference path="../models/topojson.d.ts" />
+/// <reference path="IResolutionService.d.ts" />
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Map;
+        (function (Map) {
+            var Services;
+            (function (Services) {
+                var lowResolutionService = (function () {
+                    function lowResolutionService(_d3, _q) {
+                        this._d3 = _d3;
+                        this._q = _q;
+                        this._resolution = '110m';
+                    }
+                    lowResolutionService.prototype.getAllCountries = function () {
+                        var defered = this._q.defer();
+                        var path = "/data/" + this._resolution + "/countries.topo.json";
+                        this._d3.json(path, function (error, data) {
+                            if (error) {
+                                console.error(error);
+                                defered.reject(error);
+                            }
+                            else {
+                                defered.resolve(data);
+                            }
+                        });
+                        return defered.promise;
+                    };
+                    lowResolutionService.prototype.getCountry = function (adm) {
+                        var defered = this._q.defer();
+                        this.getAllCountries()
+                            .then(function (data) {
+                            var country = _.find(data.objects.geometries, function (c) { return c.properties.adm0_a3 === adm; });
+                            defered.resolve(country);
+                        })
+                            .catch(function (reason) { return defered.reject(reason); });
+                        return defered.promise;
+                    };
+                    return lowResolutionService;
+                })();
+                Services.lowResolutionService = lowResolutionService;
             })(Services = Map.Services || (Map.Services = {}));
         })(Map = Framework.Map || (Framework.Map = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
