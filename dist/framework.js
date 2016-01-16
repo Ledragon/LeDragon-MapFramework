@@ -4,6 +4,26 @@ var LeDragon;
     (function (Framework) {
         var Map;
         (function (Map) {
+            var Models;
+            (function (Models) {
+                var position = (function () {
+                    function position(longitude, latitude) {
+                        this.longitude = longitude;
+                        this.latitude = latitude;
+                    }
+                    return position;
+                })();
+                Models.position = position;
+            })(Models = Map.Models || (Map.Models = {}));
+        })(Map = Framework.Map || (Framework.Map = {}));
+    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
+})(LeDragon || (LeDragon = {}));
+var LeDragon;
+(function (LeDragon) {
+    var Framework;
+    (function (Framework) {
+        var Map;
+        (function (Map) {
             (function (projectionType) {
                 projectionType[projectionType["Mercator"] = 0] = "Mercator";
                 projectionType[projectionType["Orthographic"] = 1] = "Orthographic";
@@ -95,26 +115,6 @@ var LeDragon;
                 return projection;
             })();
             Map.projection = projection;
-        })(Map = Framework.Map || (Framework.Map = {}));
-    })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
-})(LeDragon || (LeDragon = {}));
-var LeDragon;
-(function (LeDragon) {
-    var Framework;
-    (function (Framework) {
-        var Map;
-        (function (Map) {
-            var Models;
-            (function (Models) {
-                var position = (function () {
-                    function position(longitude, latitude) {
-                        this.longitude = longitude;
-                        this.latitude = latitude;
-                    }
-                    return position;
-                })();
-                Models.position = position;
-            })(Models = Map.Models || (Map.Models = {}));
         })(Map = Framework.Map || (Framework.Map = {}));
     })(Framework = LeDragon.Framework || (LeDragon.Framework = {}));
 })(LeDragon || (LeDragon = {}));
