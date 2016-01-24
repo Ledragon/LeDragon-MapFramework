@@ -29,8 +29,9 @@ module LeDragon.Framework.Map.Services {
             var defered = this._q.defer();
             this.getAllCountries()
                 .then(data=> {
-                    var country = _.find(data.objects.geometries, c=> c.properties.adm0_a3 === adm);
-                    defered.resolve(country);
+                    var country = _.find(data.objects.countries.geometries, c=> c.properties.adm0_a3 === adm);
+                    data.objects.countries.geometries = [country];
+                    defered.resolve(data);
                 })
                 .catch(reason=> defered.reject(reason));
             return defered.promise;

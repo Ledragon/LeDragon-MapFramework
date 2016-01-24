@@ -363,11 +363,21 @@ var LeDragon;
                 };
                 map.prototype.updateCountries = function (selection) {
                     var _this = this;
-                    selection
-                        .attr('id', function (d, i) { return d.properties.adm0_a3; });
-                    selection.select('path')
-                        .transition()
-                        .attr('d', function (d, i) { return _this._pathGenerator(d); });
+                    try {
+                        this._logger.infoFormat('Update');
+                        selection
+                            .attr('id', function (d, i) { return d.properties.adm0_a3; });
+                        selection.select('path')
+                            .transition()
+                            .attr('d', function (d, i) {
+                            var path = _this._pathGenerator(d);
+                            console.log(path);
+                            return path;
+                        });
+                    }
+                    catch (e) {
+                        this._logger.errorFormat(e);
+                    }
                 };
                 map.prototype.deleteCountries = function (selection) {
                     selection.exit().remove();
@@ -674,8 +684,9 @@ var LeDragon;
                         var defered = this._q.defer();
                         this.getAllCountries()
                             .then(function (data) {
-                            var country = _.find(data.objects.geometries, function (c) { return c.properties.adm0_a3 === adm; });
-                            defered.resolve(country);
+                            var country = _.find(data.objects.countries.geometries, function (c) { return c.properties.adm0_a3 === adm; });
+                            data.objects.countries.geometries = [country];
+                            defered.resolve(data);
                         })
                             .catch(function (reason) { return defered.reject(reason); });
                         return defered.promise;

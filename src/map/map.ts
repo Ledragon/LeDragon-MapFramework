@@ -181,11 +181,20 @@ module LeDragon.Framework.Map {
         }
 
         private updateCountries(selection: d3.Selection<GeoJSON.Feature>) {
-            selection
-                .attr('id', (d: any, i: any) => d.properties.adm0_a3)
-            selection.select('path')
-                .transition()
-                .attr('d', (d: any, i: any) => this._pathGenerator(d));
+            try {
+                this._logger.infoFormat('Update');
+                selection
+                    .attr('id', (d: any, i: any) => d.properties.adm0_a3)
+                selection.select('path')
+                    .transition()
+                    .attr('d', (d: any, i: any) => {
+                        var path = this._pathGenerator(d);
+                        console.log(path);
+                        return path;
+                    });
+            } catch (e) {
+                this._logger.errorFormat(e);
+            }
         }
 
         private deleteCountries(selection: d3.selection.Update<GeoJSON.Feature>) {
@@ -269,7 +278,7 @@ module LeDragon.Framework.Map {
                 this._logger.errorFormat(`No country with name ${countryName} found.`);
             }
             else {
-                var c = this.getCentering(country, this._pathGenerator);
+                var c = this.getCentering(country, this._pathGenerator); 
                 this._projection.projection()
                     .scale(c.scale)
                     .translate(c.translate)

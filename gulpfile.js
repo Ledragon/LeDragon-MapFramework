@@ -47,7 +47,7 @@ gulp.task('browser-sync', function () {
         server: './',
         index: 'test/index-test.html',
         port: 4000,
-        files: ['./dist/*', './test/index-test.html', './test/app.js']
+        files: ['./dist/*', './test/index-test.html', './test/*.js']
     });
 });
 
